@@ -3,8 +3,7 @@
 Txukun CLI — Basque text capitalization, punctuation restoration, and spell checking.
 
 Uses HiTZ/cap-punct-eu (MarianMT) via ONNX Runtime (int8 quantized) for cap+punct,
-and a pre-built Basque word list (160k words) for optional spell checking
-with automatic first-suggestion replacement.
+and Hunspell with Xuxen Basque dictionary for optional spell checking.
 
 Usage:
     uv run python txukun.py "ser gertatu da hemen"
@@ -16,6 +15,7 @@ Usage:
 import re
 import sys
 import time
+import subprocess
 from pathlib import Path
 
 try:
@@ -29,8 +29,7 @@ except ImportError:
 
 MODEL_ID = "itzune/txukun-cap-punct-eu"
 
-WORDLIST_PATH = Path(__file__).parent / "data" / "eu-words.txt"
-FREQ_PATH = Path(__file__).parent / "data" / "eu-words-freq.txt"
+DICT_PATH = Path(__file__).parent / "data" / "eu"  # eu.aff + eu.dic
 
 # MarianMT special tokens to clean
 CLEANUP_RE = re.compile(r"</?s>|</?pad>|<unk>")
@@ -44,100 +43,110 @@ WORD_RE = re.compile(
 )
 
 
-# ── Spell Checker ──────────────────────────────────────────
+# ── Spell Checker (Hunspell via subprocess) ─────────────────
 
 class SpellChecker:
-    """Simple spell checker backed by a 160k-word Basque word list."""
+    """Spell checker backed by Hunspell with Xuxen Basque dictionary.
 
-    def __init__(self, wordlist_path: Path, freq_path: Path | None = None):
-        self.words: set[str] = set()
-        self.freq: dict[str, int] = {}
+    Uses 'hunspell -a -d dict_path' in persistent pipe mode (ispell format).
+    The subprocess stays alive between calls for low-latency checking.
+    """
 
-        if wordlist_path.exists():
-            with open(wordlist_path) as f:
-                self.words = {line.strip() for line in f if line.strip()}
-        else:
-            bundled = Path(__file__).parent / "eu-words.txt"
-            if bundled.exists():
-                with open(bundled) as f:
-                    self.words = {line.strip() for line in f if line.strip()}
+    def __init__(self, dict_path: Path):
+        self._dict = str(dict_path)
+        self._proc: subprocess.Popen | None = None
+        self._broken = False
 
-        for path in [freq_path, FREQ_PATH]:
-            if path and path.exists():
-                with open(path) as f:
-                    for line in f:
-                        line = line.strip()
-                        if "\t" in line:
-                            word, count = line.split("\t", 1)
-                            self.freq[word] = int(count)
-                break
+    def _ensure_proc(self):
+        """Lazily start the hunspell subprocess."""
+        if self._proc is not None and self._proc.poll() is not None:
+            self._close()
+        if self._proc is None and not self._broken:
+            try:
+                self._proc = subprocess.Popen(
+                    ["hunspell", "-a", "-d", self._dict],
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.DEVNULL,
+                    text=True,
+                )
+                # Consume the initial header line
+                self._proc.stdout.readline()
+            except (FileNotFoundError, OSError):
+                self._broken = True
+                self._proc = None
+
+    def _close(self):
+        if self._proc and self._proc.poll() is None:
+            try:
+                self._proc.stdin.write("#\n")
+                self._proc.stdin.flush()
+                self._proc.stdin.close()
+            except OSError:
+                pass
+            try:
+                self._proc.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                self._proc.kill()
+        self._proc = None
 
     @property
     def loaded(self) -> bool:
-        return len(self.words) > 0
+        if self._broken:
+            return False
+        self._ensure_proc()
+        return self._proc is not None and self._proc.poll() is None
 
     def correct(self, word: str) -> bool:
-        """Check if a word is correct (case-insensitive, including uppercase acronyms)."""
-        if word in self.words:
+        """Check if a single word is spelled correctly."""
+        if not self.loaded:
+            return True  # if hunspell is unavailable, assume correct
+        self._ensure_proc()
+        try:
+            self._proc.stdin.write(word + "\n")
+            self._proc.stdin.flush()
+            line = self._proc.stdout.readline().strip()
+            # Skip blank line that ispell uses as response terminator
+            if not line:
+                line = self._proc.stdout.readline().strip()
+            # ispell format:
+            #   "*"       → correct
+            #   "+"       → correct (root form shown)
+            #   "& word ..." → misspelled
+            #   "# word"  → no suggestions
+            if line.startswith("*") or line.startswith("+"):
+                return True
+            return False
+        except (BrokenPipeError, OSError):
+            self._close()
             return True
-        lower = word.lower()
-        if lower in self.words:
-            return True
-        # Also try uppercase (acronyms like EITB are stored in uppercase form)
-        upper = word.upper()
-        if upper in self.words and upper != lower:
-            return True
-        return False
-
-    def _is_valid_word(self, word: str) -> bool:
-        """Check if a word is valid, including hyphen-split compound parts."""
-        if not word or len(word) < 2:
-            return True  # short parts are OK in compounds
-        if self.correct(word):
-            return True
-        # Hyphenated? Check each part
-        if "-" in word:
-            parts = word.split("-")
-            return all(self._is_valid_word(p) for p in parts)
-        return False
 
     def suggest(self, word: str) -> list[str]:
-        """Levenshtein distance ≤ 2, sorted by distance then frequency."""
-        lower = word.lower()
-        candidates = []
+        """Get spelling suggestions for a word."""
+        if not self.loaded:
+            return []
+        self._ensure_proc()
+        try:
+            self._proc.stdin.write(word + "\n")
+            self._proc.stdin.flush()
+            line = self._proc.stdout.readline().strip()
+            # Skip blank line that ispell uses as response terminator
+            if not line:
+                line = self._proc.stdout.readline().strip()
 
-        for w in self.words:
-            wl = w.lower()
-            if wl == lower:
-                continue
-            if abs(len(wl) - len(lower)) > 2:
-                continue
-            dist = self._levenshtein(lower, wl)
-            if dist <= 2 and dist > 0:
-                candidates.append((dist, w))
-
-        candidates.sort(key=lambda x: (x[0], -self.freq.get(x[1], 0)))
-        return [w for _, w in candidates[:5]]
-
-    @staticmethod
-    def _levenshtein(a: str, b: str) -> int:
-        m, n = len(a), len(b)
-        dp = list(range(n + 1))
-        for i in range(1, m + 1):
-            prev = dp[0]
-            dp[0] = i
-            for j in range(1, n + 1):
-                temp = dp[j]
-                dp[j] = min(
-                    dp[j] + 1,
-                    dp[j - 1] + 1,
-                    prev + (0 if a[i - 1] == b[j - 1] else 1),
-                )
-                prev = temp
-        return dp[n]
+            if line.startswith("&") or line.startswith("#"):
+                # Format: "& word count offset: sug1, sug2, ..."
+                #          "# word offset" (no suggestions)
+                if ":" in line:
+                    suggestions_part = line.split(":", 1)[1].strip()
+                    return [s.strip() for s in suggestions_part.split(", ") if s.strip()]
+            return []
+        except (BrokenPipeError, OSError):
+            self._close()
+            return []
 
     def correct_text(self, text: str) -> tuple[str, int]:
-        """Replace misspelled words with first suggestion. Returns (text, changes)."""
+        """Check all words in text, replace misspelled ones with first suggestion."""
         if not self.loaded:
             return text, 0
 
@@ -149,8 +158,10 @@ class SpellChecker:
             word = match.group(0)
             start, end = match.start(), match.end()
 
-            # Skip numbers, short words, all-caps
+            # Skip numbers, URLs, emails, short words, all-caps
             if word.isdigit():
+                continue
+            if "@" in word or word.startswith("http"):
                 continue
             if len(word) < 2:
                 continue
@@ -161,11 +172,18 @@ class SpellChecker:
             if len(word) <= 5 and i > 0 and tokens[i - 1].group(0).isdigit():
                 continue
 
-            # Check validity (including hyphen-split)
-            if self._is_valid_word(word):
+            # Check via hunspell
+            if self.correct(word):
                 continue
 
-            suggestions = self.suggest(word.lower())
+            suggestions = self.suggest(word)
+            # Filter: prefer suggestions matching input case pattern
+            # Skip ALL-CAPS suggestions when input is lowercase (e.g., "SER" for "ser")
+            if word.islower():
+                suggestions = [s for s in suggestions if not s.isupper()]
+            elif word[0].isupper() and word[1:].islower():
+                # Title case: prefer title-case suggestions, but accept lowercase too
+                suggestions = [s for s in suggestions if not s.isupper()]
             if suggestions:
                 changes += 1
                 replacement = suggestions[0]
@@ -175,6 +193,9 @@ class SpellChecker:
                 result_chars[start:end] = list(replacement)
 
         return "".join(result_chars), changes
+
+    def __del__(self):
+        self._close()
 
 
 # ── Model (ONNX Runtime via optimum) ────────────────────────
@@ -256,7 +277,7 @@ def get_model():
 def get_spell():
     global SPELL_INSTANCE
     if SPELL_INSTANCE is None:
-        SPELL_INSTANCE = SpellChecker(WORDLIST_PATH, FREQ_PATH)
+        SPELL_INSTANCE = SpellChecker(DICT_PATH)
     return SPELL_INSTANCE
 
 
@@ -298,7 +319,8 @@ def main(text, file, stdin, output, spell, no_punct, quiet):
     Txukun CLI — Basque text capitalization, punctuation, and spell checker.
 
     Cap+punct uses the int8-quantized ONNX model (itzune/txukun-cap-punct-eu,
-    ~77 MB). Spell checking uses a 160k-word dictionary (--spell to enable).
+    ~77 MB). Spell checking uses Hunspell with the Xuxen Basque dictionary
+    (data/eu.aff + data/eu.dic).
 
     \b
     Examples:
@@ -350,7 +372,7 @@ def main(text, file, stdin, output, spell, no_punct, quiet):
                 else:
                     click.echo(f"  ✓ Zuzena ({time.time() - t0:.1f}s)", err=True)
         elif not quiet:
-            click.echo("  ⚠ Hiztegia ez dago eskuragarri (data/eu-words.txt).", err=True)
+            click.echo("  ⚠ Hunspell ez dago eskuragarri. Instalatu: sudo apt install hunspell.", err=True)
 
     if output:
         with open(output, "w") as f:

@@ -8,4 +8,5 @@ dependencies = [
     "click>=8.4.2",
     "optimum[onnxruntime]>=1.0.0",
     "sentencepiece>=0.2.1",
+    "spylls>=0.1.7",
 ]
