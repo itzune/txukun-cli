@@ -344,6 +344,22 @@ def main(text, file, stdin, output, spell, no_punct, quiet):
 
     result = text
 
+    # Step 0: Spell-correct input before feeding to model (--spell flag)
+    if spell:
+        if not quiet:
+            click.echo("🔍 Ortografia zuzentzen (sarrera)...", err=True)
+        spell_checker = get_spell()
+        if spell_checker.loaded:
+            t0 = time.time()
+            result, spell_changes = spell_checker.correct_text(result)
+            if not quiet:
+                if spell_changes > 0:
+                    click.echo(f"  ✓ {spell_changes} hitz zuzenduta ({time.time() - t0:.1f}s)", err=True)
+                else:
+                    click.echo(f"  ✓ Zuzena ({time.time() - t0:.1f}s)", err=True)
+        elif not quiet:
+            click.echo("  ⚠ Hunspell ez dago eskuragarri. Instalatu: sudo apt install hunspell.", err=True)
+
     # Step 1: Cap+punct correction
     if not no_punct:
         if not quiet:
@@ -357,22 +373,6 @@ def main(text, file, stdin, output, spell, no_punct, quiet):
         except Exception as e:
             if not quiet:
                 click.echo(f"⚠️  Eredu errorea: {e}", err=True)
-
-    # Step 2: Spell check (disabled by default, --spell to enable)
-    if spell:
-        if not quiet:
-            click.echo("🔍 Ortografia zuzentzen...", err=True)
-        spell_checker = get_spell()
-        if spell_checker.loaded:
-            t0 = time.time()
-            result, spell_changes = spell_checker.correct_text(result)
-            if not quiet:
-                if spell_changes > 0:
-                    click.echo(f"  ✓ {spell_changes} hitz zuzenduta ({time.time() - t0:.1f}s)", err=True)
-                else:
-                    click.echo(f"  ✓ Zuzena ({time.time() - t0:.1f}s)", err=True)
-        elif not quiet:
-            click.echo("  ⚠ Hunspell ez dago eskuragarri. Instalatu: sudo apt install hunspell.", err=True)
 
     if output:
         with open(output, "w") as f:
