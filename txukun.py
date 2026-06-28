@@ -35,11 +35,12 @@ DICT_PATH = Path(__file__).parent / "data" / "eu"  # eu.aff + eu.dic
 CLEANUP_RE = re.compile(r"</?s>|</?pad>|<unk>")
 
 # Basque word tokenizer (matches the browser version)
+# Order matters: URLs and emails must be checked before word chars
 WORD_RE = re.compile(
-    r"[a-zA-ZáéíóúüñÁÉÍÓÚÜÑàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛçÇ'\-]+"
-    r"|\d+(?:[.,]\d+)*"
-    r"|https?://\S+"
+    r"https?://\S+"
     r"|[\w.-]+@[\w.-]+"
+    r"|[a-zA-ZáéíóúüñÁÉÍÓÚÜÑàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛçÇ'\-]+"
+    r"|\d+(?:[.,]\d+)*"
 )
 
 
@@ -101,14 +102,22 @@ class SpellChecker:
         """Check if a single word is spelled correctly."""
         if not self.loaded:
             return True  # if hunspell is unavailable, assume correct
+        # Numbers, URLs, emails are not dictionary words — skip them
+        if word.isdigit() or "@" in word or word.startswith("http"):
+            return True
         self._ensure_proc()
         try:
             self._proc.stdin.write(word + "\n")
             self._proc.stdin.flush()
             line = self._proc.stdout.readline().strip()
-            # Skip blank line that ispell uses as response terminator
+            # Skip blank lines (ispell uses them as terminator after some responses)
+            # A truly blank response means the word is not recognized (like numbers)
             if not line:
+                # Try once more in case it's a blank response terminator
                 line = self._proc.stdout.readline().strip()
+                if not line:
+                    # No meaningful response — assume correct (numbers, etc.)
+                    return True
             # ispell format:
             #   "*"       → correct
             #   "+"       → correct (root form shown)
@@ -125,14 +134,19 @@ class SpellChecker:
         """Get spelling suggestions for a word."""
         if not self.loaded:
             return []
+        # Numbers, URLs, emails don't have spell suggestions
+        if word.isdigit() or "@" in word or word.startswith("http"):
+            return []
         self._ensure_proc()
         try:
             self._proc.stdin.write(word + "\n")
             self._proc.stdin.flush()
             line = self._proc.stdout.readline().strip()
-            # Skip blank line that ispell uses as response terminator
+            # Skip blank lines (ispell terminator)
             if not line:
                 line = self._proc.stdout.readline().strip()
+                if not line:
+                    return []
 
             if line.startswith("&") or line.startswith("#"):
                 # Format: "& word count offset: sug1, sug2, ..."
@@ -177,13 +191,13 @@ class SpellChecker:
                 continue
 
             suggestions = self.suggest(word)
-            # Filter: prefer suggestions matching input case pattern
-            # Skip ALL-CAPS suggestions when input is lowercase (e.g., "SER" for "ser")
-            if word.islower():
-                suggestions = [s for s in suggestions if not s.isupper()]
-            elif word[0].isupper() and word[1:].islower():
-                # Title case: prefer title-case suggestions, but accept lowercase too
-                suggestions = [s for s in suggestions if not s.isupper()]
+            # Filter: skip ALL-CAPS suggestions (e.g., "SER" for "ser")
+            suggestions = [s for s in suggestions if not s.isupper()]
+            # For title-case input, prefer suggestions that start with same capital
+            if word[0].isupper() and word[1:].islower():
+                title_suggestions = [s for s in suggestions if s[:1].isupper()]
+                if title_suggestions:
+                    suggestions = title_suggestions
             if suggestions:
                 changes += 1
                 replacement = suggestions[0]
