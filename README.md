@@ -179,7 +179,7 @@ Txukun **euskarazko testuetarako** (`eu`/`eus`) diseinatuta dago. Ez du beste hi
 
 ### 📦 ONNX int8 vs PyTorch jatorrizkoa
 
-ONNX int8 bertsio kuantizatuak irteera ezberdina ematen du PyTorch jatorrizkoarekin alderatuta. Esaldi ongi eratuekin ONNX bertsioak emaitza **hobeak** ematen ditu (adib. `"Euskal Herrian euskaraz bizi nahi dugu."` vs PyTorch-en `"EHE bizi nahi dugu."`).
+ONNX int8 bertsio kuantizatuaren eta PyTorch jatorrizkoaren arteko irteerak ezberdinak dira. Ebaluazio formalik EZ da egin, baina gure probetan esaldi ongi eratuekin ONNX bertsioak emaitza hobeak ematen dituela dirudi (adib. `"Euskal Herrian euskaraz bizi nahi dugu."` vs PyTorch-en `"EHE bizi nahi dugu."`).
 
 ---
 
