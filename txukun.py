@@ -77,9 +77,29 @@ class SpellChecker:
         return len(self.words) > 0
 
     def correct(self, word: str) -> bool:
+        """Check if a word is correct (case-insensitive, including uppercase acronyms)."""
         if word in self.words:
             return True
-        return word.lower() in self.words
+        lower = word.lower()
+        if lower in self.words:
+            return True
+        # Also try uppercase (acronyms like EITB are stored in uppercase form)
+        upper = word.upper()
+        if upper in self.words and upper != lower:
+            return True
+        return False
+
+    def _is_valid_word(self, word: str) -> bool:
+        """Check if a word is valid, including hyphen-split compound parts."""
+        if not word or len(word) < 2:
+            return True  # short parts are OK in compounds
+        if self.correct(word):
+            return True
+        # Hyphenated? Check each part
+        if "-" in word:
+            parts = word.split("-")
+            return all(self._is_valid_word(p) for p in parts)
+        return False
 
     def suggest(self, word: str) -> list[str]:
         """Levenshtein distance ≤ 2, sorted by distance then frequency."""
@@ -122,23 +142,39 @@ class SpellChecker:
             return text, 0
 
         changes = 0
+        tokens = list(WORD_RE.finditer(text))
+        result_chars = list(text)
 
-        def replace_word(match):
-            nonlocal changes
+        for i, match in enumerate(tokens):
             word = match.group(0)
-            if word.isdigit():
-                return word
-            if len(word) < 2:
-                return word
-            if not self.correct(word):
-                suggestions = self.suggest(word.lower())
-                if suggestions:
-                    changes += 1
-                    return suggestions[0]
-            return word
+            start, end = match.start(), match.end()
 
-        result = WORD_RE.sub(replace_word, text)
-        return result, changes
+            # Skip numbers, short words, all-caps
+            if word.isdigit():
+                continue
+            if len(word) < 2:
+                continue
+            if word == word.upper() and len(word) > 1:
+                continue
+
+            # Skip short suffixes attached to numbers (42koa, 15ekoa, 42ko)
+            if len(word) <= 5 and i > 0 and tokens[i - 1].group(0).isdigit():
+                continue
+
+            # Check validity (including hyphen-split)
+            if self._is_valid_word(word):
+                continue
+
+            suggestions = self.suggest(word.lower())
+            if suggestions:
+                changes += 1
+                replacement = suggestions[0]
+                # Preserve original casing pattern if word was title-case
+                if word[0].isupper() and word[1:].islower():
+                    replacement = replacement[0].upper() + replacement[1:]
+                result_chars[start:end] = list(replacement)
+
+        return "".join(result_chars), changes
 
 
 # ── Model (ONNX Runtime via optimum) ────────────────────────
