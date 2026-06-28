@@ -51,15 +51,15 @@ sudo pacman -S hunspell
 ### Oinarrizkoa
 
 ```bash
-uv run python txukun.py "ser gertatu da hemen"
-# → Ser gertatu da hemen.
+uv run python txukun.py "gure etxe zaharra polita da"
+# → Gure etxe zaharra polita da.
 ```
 
 ### Ortografia zuzenketarekin
 
 ```bash
-uv run python txukun.py --spell "ser gertatu da hemen"
-# → zer gertatu da hemen.
+uv run python txukun.py --spell "gure etsea handia da"
+# → Gure etxea handia da.
 ```
 
 ### Fitxategitik irakurri
@@ -95,8 +95,8 @@ uv run python txukun.py "euskal herrian euskaraz bizi nahi dugu"
 # → Euskal Herrian euskaraz bizi nahi dugu.
 
 # Ortografia bakarrik (eredua kargatu gabe)
-uv run python txukun.py --no-punct --spell "akats bat dauka honek"
-# → Akats bat dauka honek
+uv run python txukun.py --no-punct --spell "gure etsea handia da"
+# → gure etxea handia da
 
 # Fitxategi bat prozesatu emaitza gordez
 uv run python txukun.py -f raw_text.txt -o clean_text.txt
@@ -133,9 +133,9 @@ Ereduak sarrerako testu gordina (minuskuletan, puntuaziorik gabe) hartu eta maiu
 `--spell` ezartzean, **lehenik ortografia zuzentzen da**, eta gero testu zuzendua cap+punct ereduari pasatzen zaio:
 
 ```bash
-uv run python txukun.py --spell "ser gertatu da hemen"
-# Ortografia:  ser → zer
-# Cap+punct:   "zer gertatu da hemen" → "Zer gertatu da hemen?"
+uv run python txukun.py --spell "gure etsea handia da"
+# Ortografia:  etsea → etxea
+# Cap+punct:   "gure etxea handia da" → "Gure etxea handia da."
 ```
 
 Fluxu honek ereduak sarrera garbiagoa jasotzea ahalbidetzen du, aluzinazio-arriskua murriztuz (ortografia-akatsak dituzten hitzek maiz aluzinazioak eragiten baitituzte).
