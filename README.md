@@ -102,7 +102,7 @@ done
 
 ### 🔴 Aluzinazioak
 
-`HiTZ/cap-punct-eu` ereduak **aluzinazioak** sor ditzake — existitzen ez diren hitzak asmatzea — bereziki testu labur, arraro edo ohiz kanpokoa denean. Hau jatorrizko ereduaren muga bat da, ez Txukun-en akats bat. ONNX int8 kuantizazioak aluzinazio horien forma alda dezake (beste txorakeria batzuk) baina ez du jatorrizko arazoa konpontzen.
+`HiTZ/cap-punct-eu` ereduak **aluzinazioak** sor ditzake — existitzen ez diren hitzak asmatzea — bereziki testu labur, arraro edo ohiz kanpokoa denean. AI eredu sortzaile guztien berezko arazoa da. ONNX int8 kuantizazioak aluzinazio horien forma alda dezake (beste txorakeria batzuk) baina ez du jatorrizko arazoa konpontzen.
 
 Emaitza onenak lortzeko, esaldi oso eta ongi eratuak erabili.
 
