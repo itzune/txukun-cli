@@ -104,7 +104,7 @@ done
 
 `HiTZ/cap-punct-eu` ereduak **hallucination-ak** sor ditzake — existitzen ez diren hitzak asmatzea — bereziki testu labur, arraro edo ohiz kanpokoa denean. Hau jatorrizko ereduaren muga bat da, ez Txukun-en akats bat. ONNX int8 kuantizazioak hallucination horien forma alda dezake (beste txorakeria batzuk) baina ez du jatorrizko arazoa konpontzen.
 
-**Arintzea**: `--spell` aukerarekin, Txukun-ek hallucination gehienak harrapatu eta euskal hitz errealekin ordezkatzen ditu. Emaitza onenak lortzeko, esaldi oso eta ongi eratuak erabili.
+Emaitza onenak lortzeko, esaldi oso eta ongi eratuak erabili.
 
 ### 🟡 Ortografia zuzentzailea: ez da AI, ez da LLM
 
