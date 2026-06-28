@@ -255,6 +255,10 @@ class TxukunModel:
 
         from transformers import pipeline
 
+        if self._quiet:
+            from transformers.utils import logging as hf_logging
+            hf_logging.set_verbosity_error()
+
         if not self._quiet:
             click.echo("🚀 Pipeline kargatzen...", err=True)
 
@@ -335,9 +339,9 @@ def get_spell():
     help="Disable cap+punct correction (default: --punct, enabled)",
 )
 @click.option(
-    "--quiet", "-q", "--silent", "-s",
+    "--quiet", "-q",
     is_flag=True,
-    help="Suppress status messages — output only (stderr)",
+    help="Suppress status messages — output only",
 )
 def main(text, file, stdin, output, spell, no_punct, quiet):
     """

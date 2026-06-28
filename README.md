@@ -85,7 +85,7 @@ echo "kaixo mundua" | uv run python txukun.py --stdin
 | `--output`, `-o PATH` | Irteera fitxategi batean gorde |
 | `--spell` | Ortografia zuzenketa gaitu (desgaituta lehenetsita) |
 | `--no-punct` | Maiuskula/puntuazio zuzenketa desgaitu |
-| `--quiet`, `-q`, `--silent`, `-s` | Egoera mezuak isildu — irteera soilik |
+| `--quiet`, `-q` | Egoera mezuak isildu — irteera soilik |
 
 ### Adibide praktikoak
 
