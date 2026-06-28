@@ -6,7 +6,7 @@ Uses HiTZ/cap-punct-eu (MarianMT) via ONNX Runtime (int8 quantized) for cap+punc
 and Hunspell with Xuxen Basque dictionary for optional spell checking.
 
 Usage:
-    uv run python txukun.py "gure etxe zaharra polita da"
+    uv run python txukun.py "zer moduz zaude"
     uv run python txukun.py --spell "gure etsea handia da"
     cat input.txt | uv run python txukun.py --stdin
     uv run python txukun.py --file euskaraz.txt --output zuzendua.txt
@@ -338,7 +338,7 @@ def main(text, file, stdin, output, spell, no_punct, quiet):
 
     \b
     Examples:
-      uv run python txukun.py "gure etxe zaharra polita da"
+      uv run python txukun.py "zer moduz zaude"
       uv run python txukun.py --spell "gure etsea handia da"
       uv run python txukun.py --file input.txt --output output.txt
       cat raw.txt | uv run python txukun.py --stdin

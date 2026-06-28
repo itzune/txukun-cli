@@ -51,8 +51,8 @@ sudo pacman -S hunspell
 ### Oinarrizkoa
 
 ```bash
-uv run python txukun.py "gure etxe zaharra polita da"
-# → Gure etxe zaharra polita da.
+uv run python txukun.py "zer moduz zaude"
+# → Zer moduz zaude?
 ```
 
 ### Ortografia zuzenketarekin
