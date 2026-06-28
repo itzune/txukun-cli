@@ -6,7 +6,7 @@
 Euskarazko testuen **maiuskulak, puntuazioa eta ortografia** zuzentzeko komando-lerroko tresna.
 
 - 🧠 **Cap+Punct**: `itzune/txukun-cap-punct-eu` ONNX int8 eredu kuantizatua (~77 MB, `optimum[onnxruntime]`)
-- 🔍 **Ortografia**: 160.000 hitzeko euskal hiztegi propioa (Xuxen + corpus maiztasunak)
+- 🔍 **Ortografia**: Hunspell + Xuxen euskal hiztegia (142k sarrera + eratorpen-arau afixuak)
 - ⚡ **Lehen zuzenketa automatikoa**: akats ortografikoak automatikoki zuzentzen ditu
 
 > **Itzune** kolektiboaren proiektua — euskarazko AI tresna libre eta pribatuak.
@@ -94,7 +94,7 @@ done
 
 1. **Cap+Punct eredua** (`itzune/txukun-cap-punct-eu`): `HiTZ/cap-punct-eu` MarianMT ereduaren bertsio kuantizatua (int8 ONNX, ~77 MB). Eredu originalak 9.78 milioi euskarazko esaldirekin entrenatu zuten HiTZ Zentroak (UPV/EHU). ONNX bertsio kuantizatua Itzune-k esportatu eta HF Hub-en argitaratu du.
 
-2. **Ortografia zuzentzailea**: 160.000 hitzeko hiztegia (`data/eu-words.txt`), Xuxen hiztegitik eta ccmatrix corpusetik eraikia. Levenshtein distantzia ≤2 erabiltzen du iradokizunak aurkitzeko, corpus maiztasunaren arabera ordenatuta. Lehen iradokizuna automatikoki aplikatzen du `--spell` aktibatuta.
+2. **Ortografia zuzentzailea**: Hunspell bidezko zuzentzaile ortografikoa, [Xuxen](https://xuxen.eus/) euskal hiztegiarekin (`data/eu.aff` + `data/eu.dic`, 142k sarrera). Hiztegi afixu-arauen bidez euskal morfologia aberatsa kudeatzen du (deklinabideak, aditz-formak, hitz-elkarketak).
 
 ---
 
@@ -106,14 +106,16 @@ done
 
 Emaitza onenak lortzeko, esaldi oso eta ongi eratuak erabili.
 
-### 🟡 Ortografia zuzentzailea: ez da AI, ez da LLM
+### 🟡 Ortografia zuzentzailea: Hunspell + Xuxen
 
-Txukun-en ortografia zuzentzaileak **EZ du adimen artifizialik edo hizkuntza-eredu handirik (LLM) erabiltzen**. 160.000 hitzeko hiztegi estatiko batean oinarritzen da:
+Txukun-en ortografia zuzentzaileak **[Hunspell](https://hunspell.github.io/)** erabiltzen du — ortografia zuzentzaileen estandar irekia — **[Xuxen](https://xuxen.eus/)** euskal hiztegiarekin. Xuxen Elhuyar-ek eta UPV/EHUko IXA taldeak garatzen dute.
 
-- **[Xuxen](https://xhuxen.eus/)** euskal zuzentzaile ortografikoa (Hunspell-ean oinarritua)
-- **ccmatrix** corpusetik ateratako 2.8 milioi euskarazko esaldiren maiztasun-datuak
+Hiztegi afixu-arauen bidez euskal morfologia aberatsa kudeatzen du:
+- Deklinabide guztiak: `etxea`, `etxearekin`, `etxeetara`...
+- Hitz-elkarketak: `hitz-armak`, `etxe-aurrean`...
+- Aditz-formak: `zetozen`, `genbiltzan`...
 
-Zuzenketak **Levenshtein distantzia** (editatzeko distantzia) bidez kalkulatzen dira, corpus maiztasunaren arabera ordenatuta. Ez dago machine learning-ik edo hizkuntza-eredurik ortografia zuzenketan.
+**Ez da AI edo LLM**: arau linguistikoetan oinarritzen da, ez machine learning-ean.
 
 ### 🟦 Eremua
 
