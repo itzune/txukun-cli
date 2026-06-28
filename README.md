@@ -150,7 +150,7 @@ Hiztegiaren afixu-arauen bidez euskal morfologia aberatsa kudeatzen du, hitz guz
 - **Aditz-formak**: `zetozen`, `genbiltzan`, `dizkizuegu`...
 - **Hitz-elkarketak**: `hitz-armak`, `etxe-aurrean`, `sare-arloa`...
 
-**Ez da AI edo LLM**: arau linguistikoetan oinarritzen da, ez machine learning-ean. Akats bat aurkitzean, Hunspell-en iradokizun-motorrak lehen iradokizuna aplikatzen du automatikoki.
+**Ez da AI edo LLM**: Hunspell arau linguistikoetan oinarritutako motor determinista bat da. Ez du machine learning-ik, entrenamendurik edo eredu estatistikorik erabiltzen — hiztegi bat (142k hitz) eta euskal morfologia deskribatzen duten afixu-arauak (`data/eu.aff`) baino ez. Akats bat aurkitzean, Hunspell-en iradokizun-motorrak editatzeko distantzia erabiltzen du antzeko hitz zuzenak aurkitzeko, eta lehen iradokizuna automatikoki aplikatzen da.
 
 ---
 
@@ -171,7 +171,7 @@ Hiztegi afixu-arauen bidez euskal morfologia aberatsa kudeatzen du:
 - Hitz-elkarketak: `hitz-armak`, `etxe-aurrean`...
 - Aditz-formak: `zetozen`, `genbiltzan`...
 
-**Ez da AI edo LLM**: arau linguistikoetan oinarritzen da, ez machine learning-ean.
+**Ez da AI edo LLM**: Hunspell arau linguistikoetan eta hiztegi batean oinarritutako motor determinista da. Ez du machine learning-ik, entrenamendurik edo eredu estatistikorik erabiltzen.
 
 ### 🟦 Eremua
 
