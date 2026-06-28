@@ -98,13 +98,30 @@ done
 
 ---
 
-## Mugarik?
+## ⚠️ Mugak eta Oharrak
 
-- **Lehen exekuzioan** ONNX eredua deskargatuko da (~77 MB) eta tokenizadorea HiTZ-en eredutik. Konexio ona behar da.
-- **CPU soilik** exekutatzen da (`CPUExecutionProvider`)
-- **Hallucination**: Ereduak hitz labur/arraroekin batzuetan hitz okerrak sortzen ditu (adib. "ausill-a", "IMAIO"). Jatorrizko PyTorch ereduaren berezko muga da.
-- **ONNX int8 vs PyTorch**: Irteera ezberdina da PyTorch jatorrizkoarekiko. Esaldi ongi eratuekin ONNX bertsioak emaitza HOBEAK ematen ditu (adib. `"Euskal Herrian euskaraz bizi nahi dugu."` vs PyTorch-en `"EHE bizi nahi dugu."`)
-- **Ortografia zuzenketa** ez da perfektua: deklinabide eta aditz-forma guztiak ez daude hiztegian. Akats nabarienak soilik zuzentzen ditu.
+### 🔴 Hallucination-ak (haluzinazioak)
+
+`HiTZ/cap-punct-eu` ereduak **hallucination-ak** sor ditzake — existitzen ez diren hitzak asmatzea — bereziki testu labur, arraro edo ohiz kanpokoa denean. Hau jatorrizko ereduaren muga bat da, ez Txukun-en akats bat. ONNX int8 kuantizazioak hallucination horien forma alda dezake (beste txorakeria batzuk) baina ez du jatorrizko arazoa konpontzen.
+
+**Arintzea**: `--spell` aukerarekin, Txukun-ek hallucination gehienak harrapatu eta euskal hitz errealekin ordezkatzen ditu. Emaitza onenak lortzeko, esaldi oso eta ongi eratuak erabili.
+
+### 🟡 Ortografia zuzentzailea: ez da AI, ez da LLM
+
+Txukun-en ortografia zuzentzaileak **EZ du adimen artifizialik edo hizkuntza-eredu handirik (LLM) erabiltzen**. 160.000 hitzeko hiztegi estatiko batean oinarritzen da:
+
+- **[Xuxen](https://xhuxen.eus/)** euskal zuzentzaile ortografikoa (Hunspell-ean oinarritua)
+- **ccmatrix** corpusetik ateratako 2.8 milioi euskarazko esaldiren maiztasun-datuak
+
+Zuzenketak **Levenshtein distantzia** (editatzeko distantzia) bidez kalkulatzen dira, corpus maiztasunaren arabera ordenatuta. Ez dago machine learning-ik edo hizkuntza-eredurik ortografia zuzenketan.
+
+### 🟦 Eremua
+
+Txukun **euskarazko testuetarako** (`eu`/`eus`) diseinatuta dago. Ez du beste hizkuntzekin behar bezala funtzionatuko.
+
+### 📦 ONNX int8 vs PyTorch jatorrizkoa
+
+ONNX int8 bertsio kuantizatuak irteera ezberdina ematen du PyTorch jatorrizkoarekin alderatuta. Esaldi ongi eratuekin ONNX bertsioak emaitza **hobeak** ematen ditu (adib. `"Euskal Herrian euskaraz bizi nahi dugu."` vs PyTorch-en `"EHE bizi nahi dugu."`).
 
 ---
 
