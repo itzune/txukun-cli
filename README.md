@@ -85,7 +85,7 @@ echo "kaixo mundua" | uv run python txukun.py --stdin
 | `--output`, `-o PATH` | Irteera fitxategi batean gorde |
 | `--spell` | Ortografia zuzenketa gaitu (desgaituta lehenetsita) |
 | `--no-punct` | Maiuskula/puntuazio zuzenketa desgaitu |
-| `--quiet`, `-q` | Egoera mezuak isildu (stderr) |
+| `--quiet`, `-q`, `--silent`, `-s` | Egoera mezuak isildu — irteera soilik |
 
 ### Adibide praktikoak
 
@@ -100,6 +100,11 @@ uv run python txukun.py --no-punct --spell "gure etsea handia da"
 
 # Fitxategi bat prozesatu emaitza gordez
 uv run python txukun.py -f raw_text.txt -o clean_text.txt
+
+# Irteera soila (isilik, script-etarako)
+uv run python txukun.py -q "zer moduz zaude"
+# → Zer moduz zaude?
+result=$(uv run python txukun.py -q "zer moduz zaude")
 
 # Hainbat fitxategi batera
 for f in *.txt; do

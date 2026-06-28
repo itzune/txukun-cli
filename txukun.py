@@ -15,7 +15,9 @@ Usage:
 import re
 import sys
 import time
+import io
 import subprocess
+from contextlib import redirect_stdout, nullcontext
 from pathlib import Path
 
 try:
@@ -228,35 +230,44 @@ class TxukunModel:
         from optimum.onnxruntime import ORTModelForSeq2SeqLM
         from transformers import AutoTokenizer
 
-        click.echo("⏳ Deskargatzen cap-punct-eu ONNX int8 modeloa...", err=True)
+        if not self._quiet:
+            click.echo("⏳ Deskargatzen cap-punct-eu ONNX int8 modeloa...", err=True)
 
         # Load ONNX model via optimum
         # Our decoder_model_merged_quantized.onnx IS a with-past decoder
-        model = ORTModelForSeq2SeqLM.from_pretrained(
-            MODEL_ID,
-            encoder_file_name="encoder_model_quantized.onnx",
-            decoder_file_name="decoder_model_merged_quantized.onnx",
-            decoder_with_past_file_name="decoder_model_merged_quantized.onnx",
-            provider="CPUExecutionProvider",
-            use_cache=True,
-        )
+        with redirect_stdout(io.StringIO()) if self._quiet else nullcontext():
+            model = ORTModelForSeq2SeqLM.from_pretrained(
+                MODEL_ID,
+                encoder_file_name="encoder_model_quantized.onnx",
+                decoder_file_name="decoder_model_merged_quantized.onnx",
+                decoder_with_past_file_name="decoder_model_merged_quantized.onnx",
+                provider="CPUExecutionProvider",
+                use_cache=True,
+            )
 
         # Tokenizer: load from HiTZ/cap-punct-eu (has source.spm + vocab.json)
-        click.echo("  ▸ Tokenizadorea kargatzen...", err=True)
+        if not self._quiet:
+            click.echo("  ▸ Tokenizadorea kargatzen...", err=True)
         import warnings
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             tokenizer = AutoTokenizer.from_pretrained("HiTZ/cap-punct-eu")
 
         from transformers import pipeline
-        self._pipeline = pipeline(
-            "translation",
-            model=model,
-            tokenizer=tokenizer,
-            max_length=512,
-        )
 
-        click.echo("✅ Eredua kargatuta (ONNX int8, ~77 MB).", err=True)
+        if not self._quiet:
+            click.echo("🚀 Pipeline kargatzen...", err=True)
+
+        with redirect_stdout(io.StringIO()) if self._quiet else nullcontext():
+            self._pipeline = pipeline(
+                "translation",
+                model=model,
+                tokenizer=tokenizer,
+                max_length=512,
+            )
+
+        if not self._quiet:
+            click.echo("✅ Eredua kargatuta (ONNX int8, ~77 MB).", err=True)
 
     def correct(self, text: str) -> str:
         self._load()
@@ -281,10 +292,10 @@ MODEL_INSTANCE = None
 SPELL_INSTANCE = None
 
 
-def get_model():
+def get_model(quiet=False):
     global MODEL_INSTANCE
     if MODEL_INSTANCE is None:
-        MODEL_INSTANCE = TxukunModel()
+        MODEL_INSTANCE = TxukunModel(quiet=quiet)
     return MODEL_INSTANCE
 
 
@@ -324,9 +335,9 @@ def get_spell():
     help="Disable cap+punct correction (default: --punct, enabled)",
 )
 @click.option(
-    "--quiet", "-q",
+    "--quiet", "-q", "--silent", "-s",
     is_flag=True,
-    help="Suppress status messages (stderr)",
+    help="Suppress status messages — output only (stderr)",
 )
 def main(text, file, stdin, output, spell, no_punct, quiet):
     """
@@ -380,7 +391,7 @@ def main(text, file, stdin, output, spell, no_punct, quiet):
             click.echo("🔤 Maiuskulak eta puntuazioa zuzentzen...", err=True)
         try:
             t0 = time.time()
-            model = get_model()
+            model = get_model(quiet=quiet)
             result = model.correct(result)
             if not quiet:
                 click.echo(f"  ✓ {time.time() - t0:.1f}s", err=True)
