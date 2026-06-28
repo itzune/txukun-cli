@@ -1,0 +1,11 @@
+[project]
+name = "txukun-cli"
+version = "0.1.0"
+description = "Basque text capitalization, punctuation, and spell checker CLI"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "click>=8.4.2",
+    "optimum[onnxruntime]>=1.0.0",
+    "sentencepiece>=0.2.1",
+]
