@@ -336,6 +336,95 @@ def grid_search(cases: list[Tier2Case], weights: list[float]) -> list[dict]:
     return results
 
 
+def eval_tier2_gated(
+    cases: list[Tier2Case],
+    t1_threshold: float,
+    lm_margin: float,
+    lm_weight: float = 1.0,
+) -> dict:
+    """Tier 2 with conditional override — only let LM intervene when Tier 1
+    is uncertain AND the LM is confident.
+
+    Override conditions (all must be true):
+      1. Tier 1 uncertain: gap between top-1 and top-2 < t1_threshold
+      2. LM disagrees:     LM's best candidate != Tier 1's best
+      3. LM confident:     surprisal[lm_best] - surprisal[t1_best] > lm_margin
+
+    When overriding, pick highest combined = tier1_score + lm_weight * surprisal.
+    Otherwise, keep Tier 1 top-1.
+    """
+    tier1_correct = 0
+    tier2_correct = 0
+    overrides = 0
+    improved = 0
+    worsened = 0
+
+    for case in cases:
+        correct_lower = case.correct.lower()
+
+        # Tier 1 top-1
+        t1_top_idx = 0
+        t1_ok = case.candidates[0].word.lower() == correct_lower
+        if t1_ok:
+            tier1_correct += 1
+
+        # Tier 1 uncertainty: gap between top-1 and top-2
+        if len(case.candidates) >= 2:
+            t1_gap = case.candidates[0].score - case.candidates[1].score
+        else:
+            t1_gap = float("inf")
+
+        # LM best (by surprisal)
+        if case.surprisals and len(case.surprisals) > 1:
+            lm_best_idx = max(range(len(case.surprisals)), key=lambda i: case.surprisals[i])
+            lm_margin_val = case.surprisals[lm_best_idx] - case.surprisals[t1_top_idx]
+        else:
+            lm_best_idx = 0
+            lm_margin_val = 0.0
+
+        # Override decision
+        should_override = (
+            t1_gap < t1_threshold
+            and lm_best_idx != t1_top_idx
+            and lm_margin_val > lm_margin
+        )
+
+        if should_override:
+            best_combined = -float("inf")
+            t2_idx = 0
+            for j, (cand, surp) in enumerate(zip(case.candidates, case.surprisals)):
+                combined = cand.score + lm_weight * surp
+                if combined > best_combined:
+                    best_combined = combined
+                    t2_idx = j
+            overrides += 1
+        else:
+            t2_idx = 0  # keep Tier 1
+
+        t2_ok = case.candidates[t2_idx].word.lower() == correct_lower
+        if t2_ok:
+            tier2_correct += 1
+
+        if t2_idx != 0:
+            if not t1_ok and t2_ok:
+                improved += 1
+            elif t1_ok and not t2_ok:
+                worsened += 1
+
+    return {
+        "total": len(cases),
+        "tier1_correct": tier1_correct,
+        "tier2_correct": tier2_correct,
+        "overrides": overrides,
+        "improved": improved,
+        "worsened": worsened,
+        "net": improved - worsened,
+        "t1_threshold": t1_threshold,
+        "lm_margin": lm_margin,
+        "lm_weight": lm_weight,
+    }
+
+
 # ── Main ────────────────────────────────────────────
 
 def main():
@@ -345,6 +434,7 @@ def main():
     parser.add_argument("--max-typo-cases", type=int, default=0, help="Limit typo cases (0 = all)")
     parser.add_argument("--model", type=str, default=str(MODEL_PATH), help="GGUF model path")
     parser.add_argument("--weights", type=str, default=None, help="Comma-separated LM_WEIGHT values for grid search")
+    parser.add_argument("--no-cache", action="store_true", help="Force recompute surprisals (ignore cache)")
     args = parser.parse_args()
 
     print("╔═══════════════════════════════════════════════════════════╗")
@@ -410,11 +500,6 @@ def main():
         print(f"{'='*60}\n")
         return
 
-    if not Path(args.model).exists():
-        print(f"\n⚠️  Model not found: {args.model}")
-        print("  Skipping Tier 2. Symlink or copy the GGUF to models/eu_futo_v2_nobos.gguf")
-        return
-
     print(f"\n{'='*60}")
     print("  TIER 2 — LM SURPRISAL RE-RANKING")
     print(f"{'='*60}\n")
@@ -429,15 +514,36 @@ def main():
     print(f"    Fixable (T1✗, in pool): {fixable}")
     print(f"    Not in pool:            {not_in_pool}")
 
-    # Load model and compute surprisals
-    print(f"\n  Loading model: {args.model}")
-    from lm_rerank import LMReranker
-    reranker = LMReranker(args.model)
-    reranker.load()
-    print("  Model loaded.\n")
+    # Load or compute surprisals (cached for fast iteration)
+    import json
+    cache_path = HERE / "surprisals_cache.json"
+    cache_valid = False
+    if not args.no_cache and cache_path.exists():
+        with open(cache_path) as f:
+            cached = json.load(f)
+        if len(cached) == len(tier2_cases):
+            for case, surps in zip(tier2_cases, cached):
+                case.surprisals = surps
+            cache_valid = True
+            print(f"  Loaded cached surprisals ({len(cached)} cases)\n")
 
-    print("  Computing surprisal scores...")
-    compute_surprisals(tier2_cases, reranker)
+    if not cache_valid:
+        if not Path(args.model).exists():
+            print(f"\n⚠️  Model not found: {args.model}")
+            print("  Skipping Tier 2. Symlink or copy the GGUF to models/eu_futo_v2_nobos.gguf")
+            return
+
+        print(f"\n  Loading model: {args.model}")
+        from lm_rerank import LMReranker
+        reranker = LMReranker(args.model)
+        reranker.load()
+        print("  Model loaded.\n")
+
+        print("  Computing surprisal scores...")
+        compute_surprisals(tier2_cases, reranker)
+        with open(cache_path, "w") as f:
+            json.dump([[float(s) for s in c.surprisals] for c in tier2_cases], f)
+        print(f"  Cached to {cache_path.name}\n")
 
     # Default grid search weights
     if args.weights:
@@ -496,6 +602,117 @@ def main():
                 mark = " ◄" if j == tier2_idx else ""
                 print(f"      {cand.word:<15} tier1={cand.score:.2f} surprisal={surp:+.2f} combined={combined:.2f}{mark}")
             failures_shown += 1
+
+    # ── Gated grid search: conditional LM override ──
+    print(f"\n{'='*60}")
+    print("  TIER 2 GATED — Conditional LM Override")
+    print(f"{'='*60}\n")
+
+    # Diagnostic: t1_gap distribution at pure LM (lm_weight=1.0)
+    import statistics
+    improved_gaps = []
+    worsened_gaps = []
+    for case in tier2_cases:
+        correct_lower = case.correct.lower()
+        t1_ok = case.candidates[0].word.lower() == correct_lower
+        t1_gap = (case.candidates[0].score - case.candidates[1].score
+                  if len(case.candidates) >= 2 else float("inf"))
+        best_combined = -float("inf")
+        t2_idx = 0
+        for j, (cand, surp) in enumerate(zip(case.candidates, case.surprisals)):
+            combined = cand.score + 1.0 * surp
+            if combined > best_combined:
+                best_combined = combined
+                t2_idx = j
+        t2_ok = case.candidates[t2_idx].word.lower() == correct_lower
+        if not t1_ok and t2_ok:
+            improved_gaps.append(t1_gap)
+        elif t1_ok and not t2_ok:
+            worsened_gaps.append(t1_gap)
+
+    print("  Diagnostic: t1_gap distribution at pure LM (lm_weight=1.0)\n")
+    if improved_gaps:
+        imp_med = statistics.median(improved_gaps)
+        imp_mean = statistics.mean(improved_gaps)
+        print(f"  Improved  ({len(improved_gaps):>3}):  median={imp_med:.3f}  mean={imp_mean:.3f}")
+    if worsened_gaps:
+        wor_med = statistics.median(worsened_gaps)
+        wor_mean = statistics.mean(worsened_gaps)
+        print(f"  Worsened  ({len(worsened_gaps):>3}):  median={wor_med:.3f}  mean={wor_mean:.3f}")
+    if improved_gaps and worsened_gaps:
+        if imp_med < wor_med:
+            print(f"\n  ✓ Improved cases have smaller t1_gap → gating on t1_gap should help!")
+        else:
+            print(f"\n  ~ Distributions overlap — t1_gap alone may not discriminate well")
+
+    # Grid search: t1_threshold × lm_margin
+    t1_thresholds = [0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.5, 2.0, float("inf")]
+    lm_margins = [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 5.0]
+
+    gated_results = []
+    for t1_th in t1_thresholds:
+        for lm_m in lm_margins:
+            r = eval_tier2_gated(tier2_cases, t1_th, lm_m, lm_weight=1.0)
+            gated_results.append(r)
+
+    best_gated = max(gated_results, key=lambda r: r["tier2_correct"])
+
+    # Print net improvement matrix
+    print(f"\n  Net improvement (T2−T1) by t1_gap threshold × lm_margin threshold")
+    print(f"  (lm_weight=1.0 for override)\n")
+
+    header = f"  {'t1_gap':>8} \\"
+    for lm_m in lm_margins:
+        header += f" {lm_m:>5.1f}"
+    print(header)
+    print(f"  {'─'*8}  {'─'*(len(lm_margins)*6)}")
+
+    for t1_th in t1_thresholds:
+        t1_str = "∞" if t1_th == float("inf") else f"{t1_th:.1f}"
+        row = f"  {t1_str:>8}  "
+        for lm_m in lm_margins:
+            r = next(r for r in gated_results
+                      if r["t1_threshold"] == t1_th and r["lm_margin"] == lm_m)
+            mark = "*" if r is best_gated else " "
+            row += f" {r['net']:>+5d}{mark}"
+        print(row)
+
+    # Print overrides matrix
+    print(f"\n  Overrides (how many cases LM actually changed)\n")
+    header = f"  {'t1_gap':>8} \\"
+    for lm_m in lm_margins:
+        header += f" {lm_m:>5.1f}"
+    print(header)
+    print(f"  {'─'*8}  {'─'*(len(lm_margins)*6)}")
+
+    for t1_th in t1_thresholds:
+        t1_str = "∞" if t1_th == float("inf") else f"{t1_th:.1f}"
+        row = f"  {t1_str:>8}  "
+        for lm_m in lm_margins:
+            r = next(r for r in gated_results
+                      if r["t1_threshold"] == t1_th and r["lm_margin"] == lm_m)
+            mark = "*" if r is best_gated else " "
+            row += f" {r['overrides']:>5d}{mark}"
+        print(row)
+
+    # Best gated combination
+    t1_str = "∞" if best_gated["t1_threshold"] == float("inf") else f"{best_gated['t1_threshold']:.1f}"
+    print(f"\n  ★ Best gated: t1_gap<{t1_str}, lm_margin>{best_gated['lm_margin']:.1f}")
+    print(f"    Tier 1: {best_gated['tier1_correct']}/{best_gated['total']} ({pct(best_gated['tier1_correct'], best_gated['total'])})")
+    print(f"    Tier 2: {best_gated['tier2_correct']}/{best_gated['total']} ({pct(best_gated['tier2_correct'], best_gated['total'])})")
+    print(f"    Overrides: {best_gated['overrides']}  Improved: {best_gated['improved']}  Worsened: {best_gated['worsened']}  Net: {best_gated['net']:+d}")
+
+    # Comparison summary
+    print(f"\n  ── Comparison ──")
+    print(f"    Ungated best (lm_weight={best['lm_weight']}):  {best['net']:+d} net ({best['tier2_improved']} improved, {best['tier2_worsened']} worsened)")
+    print(f"    Gated best:                     {best_gated['net']:+d} net ({best_gated['improved']} improved, {best_gated['worsened']} worsened)")
+    delta = best_gated["net"] - best["net"]
+    if delta > 0:
+        print(f"    Gating improvement: +{delta} net cases")
+    elif delta < 0:
+        print(f"    Gating hurts: {delta} net cases")
+    else:
+        print(f"    Gating has no effect")
 
     print(f"\n{'='*60}")
     print("  Done.")
