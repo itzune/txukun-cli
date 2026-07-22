@@ -13,6 +13,24 @@ Euskarazko testuen **maiuskulak, puntuazioa eta ortografia** zuzentzeko komando-
 
 ---
 
+## 🧠 Hiru eredu, hiru geruza
+
+Txukun ekosistemak **hiru eredu neuronal** erabiltzen ditu, euskal testuaren kalitatearen geruza desberdinak landuz. CLI honek lehenengo biak inplementatzen ditu; hirugarrena (GECToR) web bertsioan dago eskuragarri ([txukun](https://github.com/itzune/txukun)) eta CLI-ra ekartzeko planifikatuta dago:
+
+| # | Eredua | Rola | Tamaina | CLI | Web |
+|---|---|---|---|---|---|
+| 1 | **[cap-punct-eu](https://huggingface.co/itzune/txukun-cap-punct-eu)** | Maiuskulak eta puntuazioa | ~77 MB (int8) | ✅ | ✅ |
+| 2 | **[berteus-onnx](https://huggingface.co/itzune/berteus-onnx)** | Ortografia: hautagaien berriro-ordenaketa neuronala | 85 MB (int4) + 74 MB | ❌ (Hunspell bakarrik) | ✅ |
+| 3 | **[gector-eus-onnx](https://huggingface.co/itzune/gector-eus-onnx)** | Gramatika zuzenketa + akats-detekzioa | ~85 MB (int4) | ❌ | ✅ |
+
+- **1. Cap+Punct** — testu gordinari maiuskulak eta puntuazioa gehitzen dizkio (MarianMT, HiTZ Zentroak entrenatua)
+- **2. BERTeus** — akats ortografiko bat zuzentzean hainbat hautagai daudenean, testuinguruaren arabera hautagai onena aukeratzen du (BERT euskalduna, IXA NLP taldeak entrenatua)
+- **3. GECToR** — hitz errealen akats gramatikalak zuzentzen ditu (aditz-komunikazioa, kasua, denbora...); eta akats-detekzioa ere bai (hitza okerra den adierazten du konfiantza-puntuazio batekin). RoBERTa-eus-base gainean entrenatua, Elhuyar GEC corpusarekin.
+
+> CLI-an BERTeus eta GECToR integratzeko lana planifikatuta dago. Erabilgarri daude web bertsioan: [itzune.eus/txukun](https://itzune.eus/txukun/)
+
+---
+
 ## Instalazioa
 
 ### 1. Klonatu eta instalatu Python mendekotasunak
@@ -123,6 +141,8 @@ done
 --spell EZARRI: [sarrera] → Hunspell zuzenketa → cap+punct ONNX → [irteera]
 ```
 
+> **Oharra**: Web bertsioak ([txukun](https://github.com/itzune/txukun)) hiru eredu erabiltzen ditu: BERTeus (ortografia berriro-ordenaketa) eta GECToR (gramatika zuzenketa + akats-detekzio heatmap) gehitzen dizkie cap+punct eta Hunspell-i. CLI-an oraingoz bi horiek ez daude integratuta.
+
 ### 1. Cap+Punct eredua
 
 `itzune/txukun-cap-punct-eu` — `HiTZ/cap-punct-eu` MarianMT ereduaren bertsio kuantizatua (int8 ONNX, ~77 MB). Eredu originalak 9.78 milioi euskarazko esaldirekin entrenatu zuten HiTZ Zentroak (UPV/EHU). ONNX bertsio kuantizatua Itzune-k esportatu eta HF Hub-en argitaratu du.
@@ -209,3 +229,14 @@ Emaitza nettoa: **Hunspell ez badago, testuak cap+punct zuzenketa soilik jasotze
 - **Eredu kuantizatua**: Apache 2.0 (`itzune/txukun-cap-punct-eu`)
 - **Jatorrizko eredua**: Apache 2.0 (`HiTZ/cap-punct-eu`)
 - **Hiztegia**: [Xuxen](https://github.com/itzune/dictionary-eu) (GPL)
+
+---
+
+## 🔗 Erlazionatutako proiektuak
+
+- **[txukun](https://github.com/itzune/txukun)** — Web bertsioa (3 eredu: cap-punct + BERTeus + GECToR)
+- **[gector-eus](https://github.com/itzune/gector-eus)** — GECToR Basque entrenamendua (RoBERTa-eus-base + Elhuyar GEC)
+- [itzune/berteus-onnx](https://huggingface.co/itzune/berteus-onnx) — BERTeus int4 ONNX (ortografia berriro-ordenaketa)
+- [itzune/gector-eus-onnx](https://huggingface.co/itzune/gector-eus-onnx) — GECToR int4 ONNX (gramatika + detekzioa)
+- [Parakeet-eu](https://github.com/itzune/parakeet-eu) — Euskarazko ASR (ahoz-testura)
+- [HiTZ/cap-punct-eu](https://huggingface.co/HiTZ/cap-punct-eu) — Cap-punct eredu jatorrizkoa
