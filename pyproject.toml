@@ -11,6 +11,12 @@ dependencies = [
     "spylls>=0.1.7",
 ]
 
+[project.optional-dependencies]
+# LM re-ranking benchmark — not needed for normal CLI use
+bench = [
+    "llama-cpp-python>=0.3.0",
+]
+
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
