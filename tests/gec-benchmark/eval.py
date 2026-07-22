@@ -212,7 +212,11 @@ class Tier2Case:
     correct: str
     context: str
     candidates: list[Candidate]           # Tier 1 ranked candidates
-    surprisals: list[float] = field(default_factory=list)  # aligned with candidates
+    surprisals: list[float] = field(default_factory=list)  # futo, aligned with candidates
+    bert_scores: list[float] = field(default_factory=list)  # BERTeus pll_mean, aligned
+    bert_scores_sum: list[float] = field(default_factory=list)  # BERTeus pll_sum
+    sentence_words: list[str] = field(default_factory=list)  # full erroneous sentence
+    target_idx: int = -1                  # word index of typo in sentence
     tier1_correct: bool = False
     tier1_rank: int = -1                  # -1 = correct not in pool
 
@@ -243,6 +247,8 @@ def prepare_tier2_cases(typo_cases: list[TypoCase], fmap: dict[str, int]) -> lis
                 correct=edit.word,
                 context=context,
                 candidates=ranked[:5],  # MAX_LM_CANDIDATES = 5
+                sentence_words=err_words,
+                target_idx=edit.position,
                 tier1_correct=(tier1_rank == 0),
                 tier1_rank=tier1_rank,
             ))
@@ -271,8 +277,12 @@ def compute_surprisals(cases: list[Tier2Case], reranker, quiet: bool = False) ->
         print(f"  Surprisal: {done}/{total_candidates} done in {elapsed:.1f}s" + " " * 30)
 
 
-def eval_tier2(cases: list[Tier2Case], lm_weight: float) -> dict:
-    """Evaluate Tier 2 at a given LM_WEIGHT. Uses pre-computed surprisals."""
+def eval_tier2(cases: list[Tier2Case], lm_weight: float, score_attr: str = "surprisals") -> dict:
+    """Evaluate Tier 2 at a given LM_WEIGHT. Uses pre-computed surprisals.
+
+    score_attr: which field to read scores from ('surprisals' for futo,
+                'bert_scores' for BERTeus pll_mean, 'bert_scores_sum' for pll_sum).
+    """
     tier1_correct = 0
     tier2_correct = 0
     tier2_changed = 0
@@ -282,6 +292,7 @@ def eval_tier2(cases: list[Tier2Case], lm_weight: float) -> dict:
 
     for case in cases:
         correct_lower = case.correct.lower()
+        scores = getattr(case, score_attr)
 
         # Tier 1 top-1
         tier1_top = case.candidates[0].word.lower() if case.candidates else ""
@@ -290,13 +301,13 @@ def eval_tier2(cases: list[Tier2Case], lm_weight: float) -> dict:
             tier1_correct += 1
 
         # Tier 2: combined score
-        all_zero = all(s == 0 for s in case.surprisals)
+        all_zero = all(s == 0 for s in scores) if scores else True
         if all_zero:
             lm_fallback += 1
 
         best_combined = -float("inf")
         tier2_idx = 0
-        for j, (cand, surp) in enumerate(zip(case.candidates, case.surprisals)):
+        for j, (cand, surp) in enumerate(zip(case.candidates, scores)):
             combined = cand.score + lm_weight * surp
             if combined > best_combined:
                 best_combined = combined
@@ -435,6 +446,7 @@ def main():
     parser.add_argument("--model", type=str, default=str(MODEL_PATH), help="GGUF model path")
     parser.add_argument("--weights", type=str, default=None, help="Comma-separated LM_WEIGHT values for grid search")
     parser.add_argument("--no-cache", action="store_true", help="Force recompute surprisals (ignore cache)")
+    parser.add_argument("--berteus", action="store_true", help="Also evaluate BERTeus MLM re-ranking")
     args = parser.parse_args()
 
     print("╔═══════════════════════════════════════════════════════════╗")
@@ -713,6 +725,169 @@ def main():
         print(f"    Gating hurts: {delta} net cases")
     else:
         print(f"    Gating has no effect")
+
+    # ── BERTeus MLM re-ranking ──
+    if args.berteus:
+        import json as _json
+
+        print(f"\n{'='*60}")
+        print("  BERTEUS — MLM Pseudo-Log-Likelihood Re-Ranking")
+        print(f"{'='*60}\n")
+
+        bert_cache = HERE / "bert_scores_cache.json"
+        bert_cache_valid = False
+        if not args.no_cache and bert_cache.exists():
+            with open(bert_cache) as f:
+                cached = _json.load(f)
+            if len(cached) == len(tier2_cases):
+                for case, entry in zip(tier2_cases, cached):
+                    case.bert_scores = entry["pll_mean"]
+                    case.bert_scores_sum = entry["pll_sum"]
+                bert_cache_valid = True
+                print(f"  Loaded cached BERTeus scores ({len(cached)} cases)\n")
+
+        if not bert_cache_valid:
+            print(f"  Loading BERTeus model...")
+            from bert_rerank import BerteusReranker
+            bert = BerteusReranker(device="cuda")
+            bert.load()
+
+            print("  Computing BERTeus PLL scores...")
+            total_cases = len(tier2_cases)
+            t0 = time.time()
+            for i, case in enumerate(tier2_cases):
+                cand_words = [c.word.lower() for c in case.candidates]
+                scores = bert.score_candidates(case.sentence_words, case.target_idx, cand_words)
+                case.bert_scores = [s.pll_mean for s in scores]
+                case.bert_scores_sum = [s.pll_sum for s in scores]
+                if (i + 1) % 100 == 0:
+                    elapsed = time.time() - t0
+                    rate = (i + 1) / elapsed
+                    eta = (total_cases - i - 1) / rate
+                    print(f"  BERTeus: {i+1}/{total_cases} ({rate:.1f}/s, ETA {eta:.0f}s)", end="\r")
+            elapsed = time.time() - t0
+            print(f"  BERTeus: {total_cases}/{total_cases} done in {elapsed:.1f}s" + " " * 30)
+
+            with open(bert_cache, "w") as f:
+                _json.dump([
+                    {"pll_mean": [float(x) for x in c.bert_scores],
+                     "pll_sum": [float(x) for x in c.bert_scores_sum]}
+                    for c in tier2_cases
+                ], f)
+            print(f"  Cached to {bert_cache.name}\n")
+
+        # Grid search: BERTeus pll_mean
+        bert_weights = [0.0, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 3.0, 5.0, 10.0, 50.0, 999.0]
+        print(f"  Grid search BERTeus weight (pll_mean):")
+        print(f"  {'Weight':>8}  {'T1':>6}  {'T2':>6}  {'Δ':>6}  {'Improved':>8}  {'Worsened':>8}  {'Net':>5}  {'Fallback':>8}")
+        print(f"  {'─'*8}  {'─'*6}  {'─'*6}  {'─'*6}  {'─'*8}  {'─'*8}  {'─'*5}  {'─'*8}")
+
+        bert_results = []
+        for w in bert_weights:
+            r = eval_tier2(tier2_cases, w, score_attr="bert_scores")
+            r["lm_weight"] = w
+            bert_results.append(r)
+
+        best_bert_mean = max(bert_results, key=lambda r: r["tier2_correct"])
+
+        for r in bert_results:
+            delta = r["tier2_correct"] - r["tier1_correct"]
+            delta_str = f"{delta:+d}" if delta != 0 else " 0"
+            marker = " ◄ best" if r is best_bert_mean else ""
+            print(f"  {r['lm_weight']:>8.2f}  {r['tier1_correct']:>6}  {r['tier2_correct']:>6}  {delta_str:>6}  "
+                  f"{r['tier2_improved']:>8}  {r['tier2_worsened']:>8}  {r['net']:>+5}  {r['lm_fallback']:>8}{marker}")
+
+        # Grid search: BERTeus pll_sum
+        print(f"\n  Grid search BERTeus weight (pll_sum):")
+        print(f"  {'Weight':>8}  {'T1':>6}  {'T2':>6}  {'Δ':>6}  {'Improved':>8}  {'Worsened':>8}  {'Net':>5}  {'Fallback':>8}")
+        print(f"  {'─'*8}  {'─'*6}  {'─'*6}  {'─'*6}  {'─'*8}  {'─'*8}  {'─'*5}  {'─'*8}")
+
+        bert_sum_weights = [0.0, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 3.0, 5.0, 10.0, 50.0, 999.0]
+        bert_sum_results = []
+        for w in bert_sum_weights:
+            r = eval_tier2(tier2_cases, w, score_attr="bert_scores_sum")
+            r["lm_weight"] = w
+            bert_sum_results.append(r)
+
+        best_bert_sum = max(bert_sum_results, key=lambda r: r["tier2_correct"])
+
+        for r in bert_sum_results:
+            delta = r["tier2_correct"] - r["tier1_correct"]
+            delta_str = f"{delta:+d}" if delta != 0 else " 0"
+            marker = " ◄ best" if r is best_bert_sum else ""
+            print(f"  {r['lm_weight']:>8.2f}  {r['tier1_correct']:>6}  {r['tier2_correct']:>6}  {delta_str:>6}  "
+                  f"{r['tier2_improved']:>8}  {r['tier2_worsened']:>8}  {r['net']:>+5}  {r['lm_fallback']:>8}{marker}")
+
+        # Pick overall best BERTeus variant
+        best_bert = best_bert_mean if best_bert_mean["tier2_correct"] >= best_bert_sum["tier2_correct"] else best_bert_sum
+        best_bert_attr = "pll_mean" if best_bert is best_bert_mean else "pll_sum"
+
+        print(f"\n  ★ Best BERTeus: {best_bert_attr}, weight={best_bert['lm_weight']:.2f}")
+        print(f"    Tier 1: {best_bert['tier1_correct']}/{best_bert['total']} ({pct(best_bert['tier1_correct'], best_bert['total'])})")
+        print(f"    Tier 2: {best_bert['tier2_correct']}/{best_bert['total']} ({pct(best_bert['tier2_correct'], best_bert['total'])})")
+        print(f"    Improved: {best_bert['tier2_improved']}  Worsened: {best_bert['tier2_worsened']}  Net: {best_bert['net']:+d}")
+
+        # Sample BERTeus improvements and worsenings at best weight
+        print(f"\n  --- Sample BERTeus improvements ---")
+        attr = "bert_scores" if best_bert_attr == "pll_mean" else "bert_scores_sum"
+        w = best_bert["lm_weight"]
+        shown = 0
+        for case in tier2_cases:
+            if shown >= 8:
+                break
+            correct_lower = case.correct.lower()
+            t1_ok = case.candidates[0].word.lower() == correct_lower
+            scores = getattr(case, attr)
+            best_combined = -float("inf")
+            t2_idx = 0
+            for j, (cand, sc) in enumerate(zip(case.candidates, scores)):
+                combined = cand.score + w * sc
+                if combined > best_combined:
+                    best_combined = combined
+                    t2_idx = j
+            t2_ok = case.candidates[t2_idx].word.lower() == correct_lower
+            if not t1_ok and t2_ok:
+                t1_word = case.candidates[0].word
+                t2_word = case.candidates[t2_idx].word
+                print(f"    {case.typo} → want {case.correct} | T1: {t1_word} T2: {t2_word} | ctx: {case.context[:40]}")
+                shown += 1
+
+        print(f"\n  --- Sample BERTeus worsenings ---")
+        shown = 0
+        for case in tier2_cases:
+            if shown >= 8:
+                break
+            correct_lower = case.correct.lower()
+            t1_ok = case.candidates[0].word.lower() == correct_lower
+            scores = getattr(case, attr)
+            best_combined = -float("inf")
+            t2_idx = 0
+            for j, (cand, sc) in enumerate(zip(case.candidates, scores)):
+                combined = cand.score + w * sc
+                if combined > best_combined:
+                    best_combined = combined
+                    t2_idx = j
+            t2_ok = case.candidates[t2_idx].word.lower() == correct_lower
+            if t1_ok and not t2_ok:
+                t1_word = case.candidates[0].word
+                t2_word = case.candidates[t2_idx].word
+                print(f"    {case.typo} → want {case.correct} | T1: {t1_word} T2: {t2_word} | ctx: {case.context[:40]}")
+                shown += 1
+
+        # Final comparison
+        print(f"\n  ════════════════════════════════════════════════")
+        print(f"  FINAL COMPARISON")
+        print(f"  ════════════════════════════════════════════════")
+        print(f"    Tier 1 baseline:          {best['tier1_correct']}/{best['total']} ({pct(best['tier1_correct'], best['total'])})")
+        print(f"    Futo best (lm_w={best['lm_weight']}):     {best['tier2_correct']}/{best['total']} ({pct(best['tier2_correct'], best['total'])})  net={best['net']:+d}")
+        print(f"    BERTeus best ({best_bert_attr}, w={w:.2f}):  {best_bert['tier2_correct']}/{best_bert['total']} ({pct(best_bert['tier2_correct'], best_bert['total'])})  net={best_bert['net']:+d}")
+        diff = best_bert["net"] - best["net"]
+        if diff > 0:
+            print(f"    BERTeus beats futo by +{diff} net cases")
+        elif diff < 0:
+            print(f"    Futo beats BERTeus by {diff} net cases")
+        else:
+            print(f"    Tie: both give the same net improvement")
 
     print(f"\n{'='*60}")
     print("  Done.")
