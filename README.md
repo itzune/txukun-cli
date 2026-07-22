@@ -188,6 +188,21 @@ ONNX int8 bertsio kuantizatuaren eta PyTorch jatorrizkoaren arteko irteerak ezbe
 
 ---
 
+## 🛡️ Akats-kudeaketa eta fallback-a
+
+Txukun-CLI **modu graceful batean degradatzen da** — osagairen batek huts egiten badu, aurreko mailara itzultzen da kraskatu beharrean:
+
+| Osagaia | Hutsegite-modua | Fallback portaera |
+|---|---|---|
+| **Hunspell ez instalatuta** | `hunspell` komandoa ez da aurkitzen | `_broken` bandera ezartzen da. `correct()`-ek `True` itzultzen du (hitza zuzena dela onartzen du), `suggest()`-ek `[]` itzultzen du, `auto_correct()`-ek testua aldatu gabe itzultzen du. Abisu bat erakusten da behin bakarrik. Cap+punct zuzenketa normal funtzionatzen jarraitzen du. |
+| **Hunspell pipe-a apurtuta** | `BrokenPipeError` edo `OSError` exekuzioan | Hutsegitea atzeman eta no-op gisa jolasten da: hitza zuzentzat jotzen da, iradokizunik gabe. |
+| **Cap+punct eredua kargatzean** | Deskargak edo kargak huts egiten badu | `--no-punct` erabiliaz, eredua inoiz ez da kargatzen. Bestela, errorea igarotzen da eta erabiltzaileari jakinarazten zaio. |
+| **Sarrera hutsa** | Testurik ez (`TEXT`, `--file`, `--stdin` gabe) | Errore-mezua stderr-era eta irteera-kodea ≠ 0. |
+
+Emaitza nettoa: **Hunspell ez badago, testuak cap+punct zuzenketa soilik jasotzen du** — inoiz ez hutsik, inoiz ez kraskatuta.
+
+---
+
 ## Lizentzia
 
 - **Kodea**: Apache 2.0
