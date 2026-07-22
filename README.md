@@ -235,7 +235,7 @@ Emaitza nettoa: **Hunspell ez badago, testuak cap+punct zuzenketa soilik jasotze
 ## 🔗 Erlazionatutako proiektuak
 
 - **[txukun](https://github.com/itzune/txukun)** — Web bertsioa (3 eredu: cap-punct + BERTeus + GECToR)
-- **[gector-eus](https://github.com/itzune/gector-eus)** — GECToR Basque entrenamendua (RoBERTa-eus-base + Elhuyar GEC)
+- **[gector-eus](https://github.com/itzune/gector-eus)** — GECToR Basque entrenamendua (RoBERTa-eus-base + Elhuyar GEC, CC-BY-NC-SA)
 - [itzune/berteus-onnx](https://huggingface.co/itzune/berteus-onnx) — BERTeus int4 ONNX (ortografia berriro-ordenaketa)
 - [itzune/gector-eus-onnx](https://huggingface.co/itzune/gector-eus-onnx) — GECToR int4 ONNX (gramatika + detekzioa)
 - [Parakeet-eu](https://github.com/itzune/parakeet-eu) — Euskarazko ASR (ahoz-testura)
