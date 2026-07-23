@@ -1,0 +1,4522 @@
+{
+  "description": "Curated evaluation dataset for txukun / txukun-cli",
+  "version": "1.0",
+  "license": "CC-BY-NC-SA 4.0 (Elhuyar GEC dataset license)",
+  "sources": [
+    "Wikipedia (eu.wikipedia.org/wiki/Euskara) — CC-BY-SA",
+    "Elhuyar GEC dataset (Beloki et al., SEPLN 2020) — CC-BY-NC-SA 4.0"
+  ],
+  "categories": {
+    "grammar": "Real grammatical errors from Elhuyar GEC dataset (R1-R4)",
+    "cappunct": "Real sentences with caps/punctuation stripped",
+    "spelling": "Real sentences with a single controlled typo injected",
+    "mixed": "Multiple error types combined (cap-punct + spelling/grammar)",
+    "clean": "No errors — tests false-positive rate",
+    "realword": "Valid word swapped for its confusable partner (semantic error)",
+    "multi_error": "2-3 typos in one sentence (tests batch correction)",
+    "paragraph": "Multi-sentence paragraphs with errors (tests sentence splitting)",
+    "markdown": "Markdown-formatted text with errors (tests stripMarkdown)",
+    "missing_extra": "Duplicated or deleted word (tests structural error detection)"
+  },
+  "schema": {
+    "id": "Unique identifier (category_NNN)",
+    "category": "grammar | cappunct | spelling | mixed | clean | realword | multi_error | paragraph | markdown | missing_extra",
+    "source": "Source attribution",
+    "input": "Text with errors (what the corrector receives)",
+    "expected": "Correct text (ground truth)",
+    "errors": [
+      {
+        "type": "grammar | spelling | cappunct",
+        "original": "The erroneous word/phrase",
+        "correction": "The correct word/phrase",
+        "description": "Human-readable error description"
+      }
+    ],
+    "metadata": "Additional info (error types, typo type, etc.)"
+  },
+  "cases": [
+    {
+      "id": "grammar_001",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Era berea, guztia prestatzeko bilera bat egiten dute urriaren 3an, datorren asteartean, 17:00etan hasita, parrokiko lokaletan.",
+      "expected": "Era berea, guztia prestatzeko bilera bat egingo dute urriaren 3an, datorren asteartean, 17:00etan hasita, parrokiko lokaletan.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "egiten",
+          "correction": "egingo",
+          "description": "R1: postposed finite verb → non-finite (tense/mood)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R1",
+        "n_errors": 1,
+        "elhuyar_error_types": "R1"
+      }
+    },
+    {
+      "id": "grammar_002",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Joxan Goikoetxea artzen da Lasarte-Oriako Akordeoi Jaialdian.",
+      "expected": "Joxan Goikoetxea ariko da Lasarte-Oriako Akordeoi Jaialdian.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "artzen",
+          "correction": "ariko",
+          "description": "R1: postposed finite verb → non-finite (tense/mood)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R1",
+        "n_errors": 1,
+        "elhuyar_error_types": "R1"
+      }
+    },
+    {
+      "id": "grammar_003",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Pasa den urtean Sansen egon ziren zortzi jokalarirekin batera Igor Zubeldia gehitzen da aurredenboraldira berrikuntza moduan.",
+      "expected": "Pasa den urtean Sansen egon ziren zortzi jokalarirekin batera Igor Zubeldia gehituko da aurredenboraldira berrikuntza moduan.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "gehitzen",
+          "correction": "gehituko",
+          "description": "R1: postposed finite verb → non-finite (tense/mood)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R1",
+        "n_errors": 1,
+        "elhuyar_error_types": "R1"
+      }
+    },
+    {
+      "id": "grammar_004",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Lan horiek Andoaingo udaletxera bidali behartzen dituzte, 2010eko maiatzaren 15aren aurretik.",
+      "expected": "Lan horiek Andoaingo udaletxera bidali beharko dituzte, 2010eko maiatzaren 15aren aurretik.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "behartzen",
+          "correction": "beharko",
+          "description": "R1: postposed finite verb → non-finite (tense/mood)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R1",
+        "n_errors": 1,
+        "elhuyar_error_types": "R1"
+      }
+    },
+    {
+      "id": "grammar_005",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Hala, hurrengo hauek jarduten dute al cante: Manuel Moneo, Luis el Zambo, Fernando de la Morena, Juana la del Pipa, La Macanita eta Jesus Mendez.",
+      "expected": "Hala, hurrengo hauek jardungo dute al cante: Manuel Moneo, Luis el Zambo, Fernando de la Morena, Juana la del Pipa, La Macanita eta Jesus Mendez.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "jarduten",
+          "correction": "jardungo",
+          "description": "R1: postposed finite verb → non-finite (tense/mood)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R1",
+        "n_errors": 1,
+        "elhuyar_error_types": "R1"
+      }
+    },
+    {
+      "id": "grammar_006",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Karlismoaren babesa galdu ondoren, jeltzaleen babesa etortzen zen.",
+      "expected": "Karlismoaren babesa galdu ondoren, jeltzaleen babesa etorriko zen.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "etortzen",
+          "correction": "etorriko",
+          "description": "R1: postposed finite verb → non-finite (tense/mood)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R1",
+        "n_errors": 1,
+        "elhuyar_error_types": "R1"
+      }
+    },
+    {
+      "id": "grammar_007",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "NBEk hitzemandako 15.000 soldaduetatik lehenak hasi ditu Libanora iristen.",
+      "expected": "NBEk hitzemandako 15.000 soldaduetatik lehenak hasi dira Libanora iristen.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "ditu",
+          "correction": "dira",
+          "description": "R2: auxiliary verb disagreement (person/number)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R2",
+        "n_errors": 1,
+        "elhuyar_error_types": "R2"
+      }
+    },
+    {
+      "id": "grammar_008",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Horretarako, ehizatutako, ibilgailuek harrapatutako edo hilik opatutako animalien laginak hartuko dira.",
+      "expected": "Horretarako, ehizatutako, ibilgailuek harrapatutako edo hilik opatutako animalien laginak hartuko dituzte.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "dira.",
+          "correction": "dituzte.",
+          "description": "R2: auxiliary verb disagreement (person/number)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R2",
+        "n_errors": 1,
+        "elhuyar_error_types": "R2"
+      }
+    },
+    {
+      "id": "grammar_009",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Nekane Iribar Kultura zinegotziak ere ipuinaren \"estilo zaindua eta dotorea\" azpimarratu zaie, eta gaineratu du \"gazte literatura izan arren, helduentzat ere erakargarria\" dela.",
+      "expected": "Nekane Iribar Kultura zinegotziak ere ipuinaren \"estilo zaindua eta dotorea\" azpimarratu ditu, eta gaineratu du \"gazte literatura izan arren, helduentzat ere erakargarria\" dela.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "zaie,",
+          "correction": "ditu,",
+          "description": "R2: auxiliary verb disagreement (person/number)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R2",
+        "n_errors": 1,
+        "elhuyar_error_types": "R2"
+      }
+    },
+    {
+      "id": "grammar_010",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Arratsaldean herrian buelta eman eta gero, afaltzera Altsasuko sagardotegi batera joko dute, eta han gaua luzatuko ditu.",
+      "expected": "Arratsaldean herrian buelta eman eta gero, afaltzera Altsasuko sagardotegi batera joko dute, eta han gaua luzatuko zaie.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "ditu.",
+          "correction": "zaie.",
+          "description": "R2: auxiliary verb disagreement (person/number)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R2",
+        "n_errors": 1,
+        "elhuyar_error_types": "R2"
+      }
+    },
+    {
+      "id": "grammar_011",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "EBZ Europako Banku Zentralak lasaitasun apur bat ekarri zaie maileguak dituzten herritarrei.",
+      "expected": "EBZ Europako Banku Zentralak lasaitasun apur bat ekarri die maileguak dituzten herritarrei.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "zaie",
+          "correction": "die",
+          "description": "R2: auxiliary verb disagreement (person/number)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R2",
+        "n_errors": 1,
+        "elhuyar_error_types": "R2"
+      }
+    },
+    {
+      "id": "grammar_012",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "RUC Ipar Irlandako Poliziak -PSNI izena dio egun- atentatua izan eta bi aste lehenago jakin zitzaion erasoa prestatzen ari zirela eta abuztuaren 15ean izango zela.",
+      "expected": "RUC Ipar Irlandako Poliziak -PSNI izena du egun- atentatua izan eta bi aste lehenago jakin zuen erasoa prestatzen ari zirela eta abuztuaren 15ean izango zela.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "dio",
+          "correction": "du",
+          "description": "R2: auxiliary verb disagreement (person/number)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R2",
+        "n_errors": 1,
+        "elhuyar_error_types": "R2"
+      }
+    },
+    {
+      "id": "grammar_013",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Bidasoak aukera ona eskaini zidan, eta eskuartean zuten proiektua gustatu zidan.",
+      "expected": "Bidasoak aukera ona eskaini zidan, eta eskuartean zuten proiektua gustatu zitzaidan.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "zidan.",
+          "correction": "zitzaidan.",
+          "description": "R2: auxiliary verb disagreement (person/number)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R2",
+        "n_errors": 1,
+        "elhuyar_error_types": "R2"
+      }
+    },
+    {
+      "id": "grammar_014",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Iruditzen dit ez zaizula asko gustatuko Pousok etxetik kanpo jokatzeko erabiltzen duen estiloa; zaik da, baloia ukituz aurkariaren areara heltzea.",
+      "expected": "Iruditzen zait ez zaizula asko gustatuko Pousok etxetik kanpo jokatzeko erabiltzen duen estiloa; hau da, baloia ukituz aurkariaren areara heltzea.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "dit",
+          "correction": "zait",
+          "description": "R2: auxiliary verb disagreement (person/number)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R2",
+        "n_errors": 1,
+        "elhuyar_error_types": "R2"
+      }
+    },
+    {
+      "id": "grammar_015",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Kiroldegian elkartzen gara; gela txikian berogailua jartzen du, eta moldatzen gara.",
+      "expected": "Kiroldegian elkartzen gara; gela txikian berogailua jartzen dugu, eta moldatzen gara.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "du,",
+          "correction": "dugu,",
+          "description": "R2: auxiliary verb disagreement (person/number)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R2",
+        "n_errors": 1,
+        "elhuyar_error_types": "R2"
+      }
+    },
+    {
+      "id": "grammar_016",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Nire kasuan, eguneko ihesaldia osatuta bazegoen ere, bi txirrindulari soilik izanda, tarteko helmugetan gainsariak hartzeko aukera zegoela ikusi du, eta horretan saiatu naiz.",
+      "expected": "Nire kasuan, eguneko ihesaldia osatuta bazegoen ere, bi txirrindulari soilik izanda, tarteko helmugetan gainsariak hartzeko aukera zegoela ikusi dut, eta horretan saiatu naiz.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "du,",
+          "correction": "dut,",
+          "description": "R2: auxiliary verb disagreement (person/number)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R2",
+        "n_errors": 1,
+        "elhuyar_error_types": "R2"
+      }
+    },
+    {
+      "id": "grammar_017",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Sekulako nagusitasunaz gailendu zien Urdaibairi, Hondarribiari eta Castrori herenegun, Castron bertan.",
+      "expected": "Sekulako nagusitasunaz gailendu zitzaien Urdaibairi, Hondarribiari eta Castrori herenegun, Castron bertan.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "zien",
+          "correction": "zitzaien",
+          "description": "R2: auxiliary verb disagreement (person/number)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R2",
+        "n_errors": 1,
+        "elhuyar_error_types": "R2"
+      }
+    },
+    {
+      "id": "grammar_018",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Hala balitz, ETA izango luke Espainiak euskaldunekin -eta alderantziz- eraman beharreko politikaren denborak eta erritmoak markatzen dituena.",
+      "expected": "Hala balitz, ETA izango litzateke Espainiak euskaldunekin -eta alderantziz- eraman beharreko politikaren denborak eta erritmoak markatzen dituena.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "luke",
+          "correction": "litzateke",
+          "description": "R2: auxiliary verb disagreement (person/number)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R2",
+        "n_errors": 1,
+        "elhuyar_error_types": "R2"
+      }
+    },
+    {
+      "id": "grammar_019",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Berriobeitin ere (Nafarroa) larunbat honetan ospatuko diote Euskararen Eguna.",
+      "expected": "Berriobeitin ere (Nafarroa) larunbat honetan ospatuko dute Euskararen Eguna.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "diote",
+          "correction": "dute",
+          "description": "R2: auxiliary verb disagreement (person/number)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R2",
+        "n_errors": 1,
+        "elhuyar_error_types": "R2"
+      }
+    },
+    {
+      "id": "grammar_020",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Hanka sartuz ere ikasten dela iruditzen dio, eta kontatu dio zer-nolako gertaerek eraman zitzaien txipa aldatzera.",
+      "expected": "Hanka sartuz ere ikasten dela iruditzen zaio, eta kontatu du zer-nolako gertaerek eraman zituen txipa aldatzera.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "dio,",
+          "correction": "zaio,",
+          "description": "R2: auxiliary verb disagreement (person/number)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R2",
+        "n_errors": 1,
+        "elhuyar_error_types": "R2"
+      }
+    },
+    {
+      "id": "grammar_021",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Gero, igela hartu hanketatik eta sabela igurtzi behar du kotoiaz, borobilak marraztuz, hasieran mantso-mantso, bizkorrago gero.",
+      "expected": "Gero, igela hartu hanketatik eta sabela igurtzi behar zaio kotoiaz, borobilak marraztuz, hasieran mantso-mantso, bizkorrago gero.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "du",
+          "correction": "zaio",
+          "description": "R2: auxiliary verb disagreement (person/number)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R2",
+        "n_errors": 1,
+        "elhuyar_error_types": "R2"
+      }
+    },
+    {
+      "id": "grammar_022",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Historikoki, EH Bilduko Adolfo Araizak gogora ekarri zuen 1959ra arte diputazioak arautzen zituela Nafarroako errepideak, Araban bezala.",
+      "expected": "Historikoki, EH Bilduko Adolfo Araizek gogora ekarri zuen 1959ra arte diputazioak arautzen zituela Nafarroako errepideak, Araban bezala.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "Araizak",
+          "correction": "Araizek",
+          "description": "R3: case suffix error (ergative/absolutive/dative)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R3",
+        "n_errors": 1,
+        "elhuyar_error_types": "R3"
+      }
+    },
+    {
+      "id": "grammar_023",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Horrenbestez, Donostian EH Bildu izango duen zerrendaren buru izango da.",
+      "expected": "Horrenbestez, Donostian EH Bilduk izango duen zerrendaren buru izango da.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "Bildu",
+          "correction": "Bilduk",
+          "description": "R3: case suffix error (ergative/absolutive/dative)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R3",
+        "n_errors": 1,
+        "elhuyar_error_types": "R3"
+      }
+    },
+    {
+      "id": "grammar_024",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Gainera, horrela ni hartzen nituen nire ibilbideari buruzko erabakiak, eta, hanka sartzen banuen, ni nintzen erantzule bakarra; eta ez ez dakit nongo agintaria.",
+      "expected": "Gainera, horrela nik hartzen nituen nire ibilbideari buruzko erabakiak, eta, hanka sartzen banuen, ni nintzen erantzule bakarra; eta ez ez dakit nongo agintaria.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "ni",
+          "correction": "nik",
+          "description": "R3: case suffix error (ergative/absolutive/dative)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R3",
+        "n_errors": 1,
+        "elhuyar_error_types": "R3"
+      }
+    },
+    {
+      "id": "grammar_025",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Zabala behin baino gehiagotan jaso du lehen saria eta gaur ere,  epaimahaiaren ustez berarena izan da opilik goxoena.",
+      "expected": "Zabalak behin baino gehiagotan jaso du lehen saria eta gaur ere,  epaimahaiaren ustez berarena izan da opilik goxoena.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "Zabala",
+          "correction": "Zabalak",
+          "description": "R3: case suffix error (ergative/absolutive/dative)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R3",
+        "n_errors": 1,
+        "elhuyar_error_types": "R3"
+      }
+    },
+    {
+      "id": "grammar_026",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Ez da lehenengo aldia entrenatzailea elkarrekin zelairatzen dituena.",
+      "expected": "Ez da lehenengo aldia entrenatzaileak elkarrekin zelairatzen dituena.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "entrenatzailea",
+          "correction": "entrenatzaileak",
+          "description": "R3: case suffix error (ergative/absolutive/dative)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R3",
+        "n_errors": 1,
+        "elhuyar_error_types": "R3"
+      }
+    },
+    {
+      "id": "grammar_027",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Askotan gertatzen ohi den bezala, goi bilera ponposo horiak argazki eta hitz eder hutsetan gelditzen dira.",
+      "expected": "Askotan gertatzen ohi den bezala, goi bilera ponposo horiek argazki eta hitz eder hutsetan gelditzen dira.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "horiak",
+          "correction": "horiek",
+          "description": "R3: case suffix error (ergative/absolutive/dative)"
+        }
+      ],
+      "metadata": {
+        "error_types": "R3",
+        "n_errors": 1,
+        "elhuyar_error_types": "R3"
+      }
+    },
+    {
+      "id": "grammar_028",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Denbora aurrera doala gogoratu zuen, eta aurretik akordiorik ez badago, erreferenduma egin egingo dela esan zuen, konbentzimendu osoz hitz egin eta segurtasuna adierazi nahi duelako tonuan.",
+      "expected": "Denbora aurrera doala gogoratu zuen, eta aurretik akordiorik ez badago, erreferenduma egin egingo dela esan zuen, konbentzimendu osoz hitz egin eta segurtasuna adierazi nahi duenaren tonuan.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "duelako",
+          "correction": "duenaren",
+          "description": "R4: subordination/connector morphology error"
+        }
+      ],
+      "metadata": {
+        "error_types": "R4",
+        "n_errors": 1,
+        "elhuyar_error_types": "R4"
+      }
+    },
+    {
+      "id": "grammar_029",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Bruselan, bada, inor gutxi zebilen atzo kalean, neurrietatik haratago, elurra ere egin zuelaren hiriburuan.",
+      "expected": "Bruselan, bada, inor gutxi zebilen atzo kalean, neurrietatik haratago, elurra ere egin zuelako hiriburuan.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "zuelaren",
+          "correction": "zuelako",
+          "description": "R4: subordination/connector morphology error"
+        }
+      ],
+      "metadata": {
+        "error_types": "R4",
+        "n_errors": 1,
+        "elhuyar_error_types": "R4"
+      }
+    },
+    {
+      "id": "grammar_030",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Erreferentziazko argitaletxe bihurtu gara Espainiako egileen artean, baina horrek ez du esan nahi gugandik kanpo egile onak ez daudela.",
+      "expected": "Erreferentziazko argitaletxe bihurtu gara Espainiako egileen artean, baina horrek ez du esan nahi gugandik kanpo egile onak ez daudenik.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "daudela.",
+          "correction": "daudenik.",
+          "description": "R4: subordination/connector morphology error"
+        }
+      ],
+      "metadata": {
+        "error_types": "R4",
+        "n_errors": 1,
+        "elhuyar_error_types": "R4"
+      }
+    },
+    {
+      "id": "grammar_031",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Hortaz, berriz ere, eta azken aldia izan beharko litzatekeelako ustearekin, zuregana jotzen dugu.",
+      "expected": "Hortaz, berriz ere, eta azken aldia izan beharko litzatekeenaren ustearekin, zuregana jotzen dugu.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "litzatekeelako",
+          "correction": "litzatekeenaren",
+          "description": "R4: subordination/connector morphology error"
+        }
+      ],
+      "metadata": {
+        "error_types": "R4",
+        "n_errors": 1,
+        "elhuyar_error_types": "R4"
+      }
+    },
+    {
+      "id": "grammar_032",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Patxi Sarasua, Antonio Campos eta abarrek elkarte berrirako jarritako helburuen artean ez zen azaltzen, zehazki behintzat, emakumeek lekua izango zutela klub berrian.",
+      "expected": "Patxi Sarasua, Antonio Campos eta abarrek elkarte berrirako jarritako helburuen artean ez zen azaltzen, zehazki behintzat, emakumeek lekua izango zutenik klub berrian.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "zutela",
+          "correction": "zutenik",
+          "description": "R4: subordination/connector morphology error"
+        }
+      ],
+      "metadata": {
+        "error_types": "R4",
+        "n_errors": 1,
+        "elhuyar_error_types": "R4"
+      }
+    },
+    {
+      "id": "grammar_033",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Arrasaten etxebizitza eskuratu gura duelako profila, berriz, pertsona bakarra, gizonezkoa eta 35 urtetik beherakoa da.",
+      "expected": "Arrasaten etxebizitza eskuratu gura duenaren profila, berriz, pertsona bakarra, gizonezkoa eta 35 urtetik beherakoa da.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "duelako",
+          "correction": "duenaren",
+          "description": "R4: subordination/connector morphology error"
+        }
+      ],
+      "metadata": {
+        "error_types": "R4",
+        "n_errors": 1,
+        "elhuyar_error_types": "R4"
+      }
+    },
+    {
+      "id": "grammar_034",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Hortik aurrera, egoera egonkortu egingo dela diote gehienek, nahiz eta %5era iritsiko dela uste duela ere baden.",
+      "expected": "Hortik aurrera, egoera egonkortu egingo dela diote gehienek, nahiz eta %5era iritsiko dela uste duenik ere baden.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "duela",
+          "correction": "duenik",
+          "description": "R4: subordination/connector morphology error"
+        }
+      ],
+      "metadata": {
+        "error_types": "R4",
+        "n_errors": 1,
+        "elhuyar_error_types": "R4"
+      }
+    },
+    {
+      "id": "grammar_035",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Confebaskek ez dio bake sozial horri erreparatu bere hitzezko eskaintzan, sektore arteko ituna egiteko, Bizkaiko merkataritzan lortutako esparru hitzarmena aipatu duelaren eredu gisa.",
+      "expected": "Confebaskek ez dio bake sozial horri erreparatu bere hitzezko eskaintzan, sektore arteko ituna egiteko, Bizkaiko merkataritzan lortutako esparru hitzarmena aipatu duelako eredu gisa.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "duelaren",
+          "correction": "duelako",
+          "description": "R4: subordination/connector morphology error"
+        }
+      ],
+      "metadata": {
+        "error_types": "R4",
+        "n_errors": 1,
+        "elhuyar_error_types": "R4"
+      }
+    },
+    {
+      "id": "grammar_036",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Beharbada horrexegatik duk ederra bizitza, ez delaren gelditzen, ez delako inoiz errepikatzen.",
+      "expected": "Beharbada horrexegatik duk ederra bizitza, ez delako gelditzen, ez delako inoiz errepikatzen.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "delaren",
+          "correction": "delako",
+          "description": "R4: subordination/connector morphology error"
+        }
+      ],
+      "metadata": {
+        "error_types": "R4",
+        "n_errors": 1,
+        "elhuyar_error_types": "R4"
+      }
+    },
+    {
+      "id": "grammar_037",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Baina horrek ez du esan nahi ez daudela moduak sistema horretatik kanpo antolatzeko ekonomikoki eta sozialki.",
+      "expected": "Baina horrek ez du esan nahi ez daudenik moduak sistema horretatik kanpo antolatzeko ekonomikoki eta sozialki.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "daudela",
+          "correction": "daudenik",
+          "description": "R4: subordination/connector morphology error"
+        }
+      ],
+      "metadata": {
+        "error_types": "R4",
+        "n_errors": 1,
+        "elhuyar_error_types": "R4"
+      }
+    },
+    {
+      "id": "grammar_038",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Dena dela, geratzen diren zazpi partidetan gauzak ondo eginda ere ez dirudi nahikoa izango dela helburua lortzeko.",
+      "expected": "Dena dela, geratzen diren zazpi partidetan gauzak ondo eginda ere ez dirudi nahikoa izango denik helburua lortzeko.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "dela",
+          "correction": "denik",
+          "description": "R4: subordination/connector morphology error"
+        }
+      ],
+      "metadata": {
+        "error_types": "R4",
+        "n_errors": 1,
+        "elhuyar_error_types": "R4"
+      }
+    },
+    {
+      "id": "grammar_039",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Horren kontra azaldu beharra dago, askotan normalak iruditzen zaizkigularen zenbait gauza, eta ez da normala hainbeste urtez jende hau kanpoan egotea, eta euren zaintza behar bezalakoa ez izatea.",
+      "expected": "Horren kontra azaldu beharra dago, askotan normalak iruditzen zaizkigulako zenbait gauza, eta ez da normala hainbeste urtez jende hau kanpoan egotea, eta euren zaintza behar bezalakoa ez izatea.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "zaizkigularen",
+          "correction": "zaizkigulako",
+          "description": "R4: subordination/connector morphology error"
+        }
+      ],
+      "metadata": {
+        "error_types": "R4",
+        "n_errors": 1,
+        "elhuyar_error_types": "R4"
+      }
+    },
+    {
+      "id": "grammar_040",
+      "category": "grammar",
+      "source": "elhuyar-dem",
+      "input": "Oraindik ikusi eta entzun dudalako eraginpean nago, egia esatea nahi baduzu.",
+      "expected": "Oraindik ikusi eta entzun dudanaren eraginpean nago, egia esatea nahi baduzu.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "dudalako",
+          "correction": "dudanaren",
+          "description": "R4: subordination/connector morphology error"
+        }
+      ],
+      "metadata": {
+        "error_types": "R4",
+        "n_errors": 1,
+        "elhuyar_error_types": "R4"
+      }
+    },
+    {
+      "id": "cappunct_001",
+      "category": "cappunct",
+      "source": "wikipedia",
+      "input": "1729an manuel larramendi jesuitak el imposible vencido izeneko euskararen gramatika bat argitaratu zuen salamancan",
+      "expected": "1729an, Manuel Larramendi jesuitak El Imposible Vencido izeneko euskararen gramatika bat argitaratu zuen Salamancan.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "1729an manuel larramendi jesuitak el imposible vencido izeneko euskararen gramatika bat argitaratu zuen salamancan",
+          "correction": "1729an, Manuel Larramendi jesuitak El Imposible Vencido izeneko euskararen gramatika bat argitaratu zuen Salamancan.",
+          "description": "Capitalize 6 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 6,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_002",
+      "category": "cappunct",
+      "source": "wikipedia",
+      "input": "olerki liburua da eta haren egilea bernart etxepare nafarroa behereko herri txiki bateko apaiza izan zen",
+      "expected": "Olerki liburua da eta haren egilea, Bernart Etxepare, Nafarroa Behereko herri txiki bateko apaiza izan zen.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "olerki liburua da eta haren egilea bernart etxepare nafarroa behereko herri txiki bateko apaiza izan zen",
+          "correction": "Olerki liburua da eta haren egilea, Bernart Etxepare, Nafarroa Behereko herri txiki bateko apaiza izan zen.",
+          "description": "Capitalize 5 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 5,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_003",
+      "category": "cappunct",
+      "source": "wikipedia",
+      "input": "euskara euskal herriko hizkuntza da",
+      "expected": "Euskara Euskal Herriko hizkuntza da.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "euskara euskal herriko hizkuntza da",
+          "correction": "Euskara Euskal Herriko hizkuntza da.",
+          "description": "Capitalize 3 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 3,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_004",
+      "category": "cappunct",
+      "source": "wikipedia",
+      "input": "nafarroa garaian euskararen legearen eraginez herrialdeko ipar mendebaldean soilik da koofiziala",
+      "expected": "Nafarroa Garaian, Euskararen Legearen eraginez, herrialdeko ipar-mendebaldean soilik da koofiziala.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "nafarroa garaian euskararen legearen eraginez herrialdeko ipar mendebaldean soilik da koofiziala",
+          "correction": "Nafarroa Garaian, Euskararen Legearen eraginez, herrialdeko ipar-mendebaldean soilik da koofiziala.",
+          "description": "Capitalize 4 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 4,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_005",
+      "category": "cappunct",
+      "source": "wikipedia",
+      "input": "frankismoaren garaian 1936 1977 euskarak jazarpen arrotza pairatu zuen eta ia desagertu zen baina berriro ere indartu egin da 1960ko hamarkadaz geroztik",
+      "expected": "Frankismoaren garaian (1936–1977) euskarak jazarpen arrotza pairatu zuen eta ia desagertu zen, baina berriro ere indartu egin da 1960ko hamarkadaz geroztik.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "frankismoaren garaian 1936 1977 euskarak jazarpen arrotza pairatu zuen eta ia desagertu zen baina berriro ere indartu egin da 1960ko hamarkadaz geroztik",
+          "correction": "Frankismoaren garaian (1936–1977) euskarak jazarpen arrotza pairatu zuen eta ia desagertu zen, baina berriro ere indartu egin da 1960ko hamarkadaz geroztik.",
+          "description": "Capitalize 1 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 1,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_006",
+      "category": "cappunct",
+      "source": "wikipedia",
+      "input": "euskara araba bizkaia gipuzkoa lapurdi nafarroa eta zuberoa herrialdeetan hitz egiten da",
+      "expected": "Euskara Araba, Bizkaia, Gipuzkoa, Lapurdi, Nafarroa eta Zuberoa herrialdeetan hitz egiten da.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "euskara araba bizkaia gipuzkoa lapurdi nafarroa eta zuberoa herrialdeetan hitz egiten da",
+          "correction": "Euskara Araba, Bizkaia, Gipuzkoa, Lapurdi, Nafarroa eta Zuberoa herrialdeetan hitz egiten da.",
+          "description": "Capitalize 7 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 7,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_007",
+      "category": "cappunct",
+      "source": "wikipedia",
+      "input": "gaur egun euskal herrian bertan ere hizkuntza gutxitua da lurralde horretan gaztelania eta frantsesa nagusitu baitira",
+      "expected": "Gaur egun, Euskal Herrian bertan ere hizkuntza gutxitua da, lurralde horretan gaztelania eta frantsesa nagusitu baitira.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "gaur egun euskal herrian bertan ere hizkuntza gutxitua da lurralde horretan gaztelania eta frantsesa nagusitu baitira",
+          "correction": "Gaur egun, Euskal Herrian bertan ere hizkuntza gutxitua da, lurralde horretan gaztelania eta frantsesa nagusitu baitira.",
+          "description": "Capitalize 3 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 3,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_008",
+      "category": "cappunct",
+      "source": "wikipedia",
+      "input": "morfologiari dagokionez hizkuntza ergatibokoa eta eranskaria da indoeuropar hizkuntzak ez bezala",
+      "expected": "Morfologiari dagokionez, hizkuntza ergatibokoa eta eranskaria da, indoeuropar hizkuntzak ez bezala.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "morfologiari dagokionez hizkuntza ergatibokoa eta eranskaria da indoeuropar hizkuntzak ez bezala",
+          "correction": "Morfologiari dagokionez, hizkuntza ergatibokoa eta eranskaria da, indoeuropar hizkuntzak ez bezala.",
+          "description": "Capitalize 1 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 1,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_009",
+      "category": "cappunct",
+      "source": "wikipedia",
+      "input": "euskaraz mintzo direnei euskaldun deritze",
+      "expected": "Euskaraz mintzo direnei euskaldun deritze.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "euskaraz mintzo direnei euskaldun deritze",
+          "correction": "Euskaraz mintzo direnei euskaldun deritze.",
+          "description": "Capitalize 1 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 1,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_010",
+      "category": "cappunct",
+      "source": "wikipedia",
+      "input": "ipar euskal herrian euskarak ez du aginpidea duten erakunde publikoen onarpenik",
+      "expected": "Ipar Euskal Herrian, euskarak ez du aginpidea duten erakunde publikoen onarpenik.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "ipar euskal herrian euskarak ez du aginpidea duten erakunde publikoen onarpenik",
+          "correction": "Ipar Euskal Herrian, euskarak ez du aginpidea duten erakunde publikoen onarpenik.",
+          "description": "Capitalize 3 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 3,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_011",
+      "category": "cappunct",
+      "source": "wikipedia",
+      "input": "erdi aroan gutxienez errioxan eta burgosko ipar ekialdean ere hitz egin zela dokumentatuta dago",
+      "expected": "Erdi Aroan, gutxienez Errioxan eta Burgosko ipar-ekialdean ere hitz egin zela dokumentatuta dago.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "erdi aroan gutxienez errioxan eta burgosko ipar ekialdean ere hitz egin zela dokumentatuta dago",
+          "correction": "Erdi Aroan, gutxienez Errioxan eta Burgosko ipar-ekialdean ere hitz egin zela dokumentatuta dago.",
+          "description": "Capitalize 4 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 4,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_012",
+      "category": "cappunct",
+      "source": "wikipedia",
+      "input": "euskarak inguruko hizkuntzekin milaka urteko harremana izan du",
+      "expected": "Euskarak inguruko hizkuntzekin milaka urteko harremana izan du.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "euskarak inguruko hizkuntzekin milaka urteko harremana izan du",
+          "correction": "Euskarak inguruko hizkuntzekin milaka urteko harremana izan du.",
+          "description": "Capitalize 1 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 1,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_013",
+      "category": "cappunct",
+      "source": "wikipedia",
+      "input": "aitzineuskararen sustrairik zaharrenak erromatar inperioaren aurretikoak akitania osoan eta bizkaiko golkotik andorraraino bitarteko pirinioen bi aldeetan agertu dira",
+      "expected": "Aitzineuskararen sustrairik zaharrenak, Erromatar Inperioaren aurretikoak, Akitania osoan eta Bizkaiko golkotik Andorraraino bitarteko Pirinioen bi aldeetan agertu dira.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "aitzineuskararen sustrairik zaharrenak erromatar inperioaren aurretikoak akitania osoan eta bizkaiko golkotik andorraraino bitarteko pirinioen bi aldeetan agertu dira",
+          "correction": "Aitzineuskararen sustrairik zaharrenak, Erromatar Inperioaren aurretikoak, Akitania osoan eta Bizkaiko golkotik Andorraraino bitarteko Pirinioen bi aldeetan agertu dira.",
+          "description": "Capitalize 7 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 7,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_014",
+      "category": "cappunct",
+      "source": "wikipedia",
+      "input": "gernikako estatutuak euskara euskal autonomia erkidegoko berezko hizkuntza izendatu zuen eta gaztelaniarekin batera ofizial egin zuen araba bizkai eta gipuzkoan",
+      "expected": "Gernikako Estatutuak euskara Euskal Autonomia Erkidegoko berezko hizkuntza izendatu zuen eta gaztelaniarekin batera ofizial egin zuen Araba, Bizkai eta Gipuzkoan.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "gernikako estatutuak euskara euskal autonomia erkidegoko berezko hizkuntza izendatu zuen eta gaztelaniarekin batera ofizial egin zuen araba bizkai eta gipuzkoan",
+          "correction": "Gernikako Estatutuak euskara Euskal Autonomia Erkidegoko berezko hizkuntza izendatu zuen eta gaztelaniarekin batera ofizial egin zuen Araba, Bizkai eta Gipuzkoan.",
+          "description": "Capitalize 8 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 8,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_015",
+      "category": "cappunct",
+      "source": "wikipedia",
+      "input": "euskararen dialektoei euskalkiak deritze",
+      "expected": "Euskararen dialektoei euskalkiak deritze.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "euskararen dialektoei euskalkiak deritze",
+          "correction": "Euskararen dialektoei euskalkiak deritze.",
+          "description": "Capitalize 1 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 1,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_016",
+      "category": "cappunct",
+      "source": "wikipedia",
+      "input": "1545ean argitaratu zen lehen liburua euskaraz linguae vasconum primitiae izenekoa",
+      "expected": "1545ean argitaratu zen lehen liburua euskaraz, «Linguae Vasconum Primitiae» izenekoa.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "1545ean argitaratu zen lehen liburua euskaraz linguae vasconum primitiae izenekoa",
+          "correction": "1545ean argitaratu zen lehen liburua euskaraz, «Linguae Vasconum Primitiae» izenekoa.",
+          "description": "Capitalize 2 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 2,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_017",
+      "category": "cappunct",
+      "source": "wikipedia",
+      "input": "2016ko vi inkesta soziolinguistikoaren arabera euskararen eremu osoan bizi ziren 16 urtetik gorako biztanleen 28 4 euskalduna zen",
+      "expected": "2016ko VI. Inkesta Soziolinguistikoaren arabera, euskararen eremu osoan bizi ziren 16 urtetik gorako biztanleen % 28,4 euskalduna zen.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "2016ko vi inkesta soziolinguistikoaren arabera euskararen eremu osoan bizi ziren 16 urtetik gorako biztanleen 28 4 euskalduna zen",
+          "correction": "2016ko VI. Inkesta Soziolinguistikoaren arabera, euskararen eremu osoan bizi ziren 16 urtetik gorako biztanleen % 28,4 euskalduna zen.",
+          "description": "Capitalize 3 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 3,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_018",
+      "category": "cappunct",
+      "source": "wikipedia",
+      "input": "hizkuntza bakartua da ez baitzaio munduko hizkuntzen artean ahaidetasunik aurkitu",
+      "expected": "Hizkuntza bakartua da, ez baitzaio munduko hizkuntzen artean ahaidetasunik aurkitu.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "hizkuntza bakartua da ez baitzaio munduko hizkuntzen artean ahaidetasunik aurkitu",
+          "correction": "Hizkuntza bakartua da, ez baitzaio munduko hizkuntzen artean ahaidetasunik aurkitu.",
+          "description": "Capitalize 1 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 1,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_019",
+      "category": "cappunct",
+      "source": "wikipedia",
+      "input": "1968an euskaltzaindiak arantzazuko santutegian oñati gipuzkoa egin zuen batzarrean abiatu zen batasun prozesutik sortu zen euskara batua",
+      "expected": "1968an Euskaltzaindiak Arantzazuko santutegian (Oñati, Gipuzkoa) egin zuen batzarrean abiatu zen batasun prozesutik sortu zen euskara batua.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "1968an euskaltzaindiak arantzazuko santutegian oñati gipuzkoa egin zuen batzarrean abiatu zen batasun prozesutik sortu zen euskara batua",
+          "correction": "1968an Euskaltzaindiak Arantzazuko santutegian (Oñati, Gipuzkoa) egin zuen batzarrean abiatu zen batasun prozesutik sortu zen euskara batua.",
+          "description": "Capitalize 3 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 3,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_020",
+      "category": "cappunct",
+      "source": "wikipedia",
+      "input": "latindar alfabetoaren bidez idazten da",
+      "expected": "Latindar alfabetoaren bidez idazten da.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "latindar alfabetoaren bidez idazten da",
+          "correction": "Latindar alfabetoaren bidez idazten da.",
+          "description": "Capitalize 1 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 1,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_021",
+      "category": "cappunct",
+      "source": "elhuyar",
+      "input": "egia da katalunian ere fede baino irri gehiago eragin zutela hasieran 2009ko herri galdeketek nola erabaki behar zuen bada arenys de muntek independentziaren inguruan",
+      "expected": "Egia da Katalunian ere fede baino irri gehiago eragin zutela hasieran 2009ko herri galdeketek: nola erabaki behar zuen, bada, Arenys de Muntek independentziaren inguruan?",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "egia da katalunian ere fede baino irri gehiago eragin zutela hasieran 2009ko herri galdeketek nola erabaki behar zuen bada arenys de muntek independentziaren inguruan",
+          "correction": "Egia da Katalunian ere fede baino irri gehiago eragin zutela hasieran 2009ko herri galdeketek: nola erabaki behar zuen, bada, Arenys de Muntek independentziaren inguruan?",
+          "description": "Capitalize 4 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 4,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_022",
+      "category": "cappunct",
+      "source": "elhuyar",
+      "input": "euskarazko zenbait tokiko telebista euskalteleko emisio digitalaren bidez ikusteko modua izango da laster araban bizkaian eta gipuzkoan",
+      "expected": "Euskarazko zenbait tokiko telebista Euskalteleko emisio digitalaren bidez ikusteko modua izango da laster, Araban, Bizkaian eta Gipuzkoan.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "euskarazko zenbait tokiko telebista euskalteleko emisio digitalaren bidez ikusteko modua izango da laster araban bizkaian eta gipuzkoan",
+          "correction": "Euskarazko zenbait tokiko telebista Euskalteleko emisio digitalaren bidez ikusteko modua izango da laster, Araban, Bizkaian eta Gipuzkoan.",
+          "description": "Capitalize 5 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 5,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_023",
+      "category": "cappunct",
+      "source": "elhuyar",
+      "input": "epaiketajoan den urtarrilaren amaieran usurpazio delitua egotzi zieten hibai eta beste 22 lagunen aurkako epaiketa burutu zen bizkaiko probintzia auzitegian",
+      "expected": "EpaiketaJoan den urtarrilaren amaieran, usurpazio delitua egotzi zieten Hibai eta beste 22 lagunen aurkako epaiketa burutu zen Bizkaiko Probintzia Auzitegian.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "epaiketajoan den urtarrilaren amaieran usurpazio delitua egotzi zieten hibai eta beste 22 lagunen aurkako epaiketa burutu zen bizkaiko probintzia auzitegian",
+          "correction": "EpaiketaJoan den urtarrilaren amaieran, usurpazio delitua egotzi zieten Hibai eta beste 22 lagunen aurkako epaiketa burutu zen Bizkaiko Probintzia Auzitegian.",
+          "description": "Capitalize 5 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 5,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_024",
+      "category": "cappunct",
+      "source": "elhuyar",
+      "input": "euskal presoen senideek aurrez aurreko bisita gehiago galdu dituzte",
+      "expected": "Euskal presoen senideek aurrez aurreko bisita gehiago galdu dituzte.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "euskal presoen senideek aurrez aurreko bisita gehiago galdu dituzte",
+          "correction": "Euskal presoen senideek aurrez aurreko bisita gehiago galdu dituzte.",
+          "description": "Capitalize 1 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 1,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_025",
+      "category": "cappunct",
+      "source": "elhuyar",
+      "input": "amaia iturriotz etxaniz eta saioa alkaiza guallar bertsolariak eta gurutze ostolaza gitarra jotzaileak parte hartu zuten eta emakume gisa sorkuntza munduan izandako bizipenak izan zituzten hizpide",
+      "expected": "Amaia Iturriotz Etxaniz eta Saioa Alkaiza Guallar bertsolariak eta Gurutze Ostolaza gitarra jotzaileak parte hartu zuten, eta emakume gisa sorkuntza munduan izandako bizipenak izan zituzten hizpide.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "amaia iturriotz etxaniz eta saioa alkaiza guallar bertsolariak eta gurutze ostolaza gitarra jotzaileak parte hartu zuten eta emakume gisa sorkuntza munduan izandako bizipenak izan zituzten hizpide",
+          "correction": "Amaia Iturriotz Etxaniz eta Saioa Alkaiza Guallar bertsolariak eta Gurutze Ostolaza gitarra jotzaileak parte hartu zuten, eta emakume gisa sorkuntza munduan izandako bizipenak izan zituzten hizpide.",
+          "description": "Capitalize 8 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 8,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_026",
+      "category": "cappunct",
+      "source": "elhuyar",
+      "input": "burdingilea gizon lasaia eta emaztearen gonapean bizi dena bileran zehar lehertzen den arte",
+      "expected": "Burdingilea, gizon lasaia eta emaztearen gonapean bizi dena, bileran zehar lehertzen den arte.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "burdingilea gizon lasaia eta emaztearen gonapean bizi dena bileran zehar lehertzen den arte",
+          "correction": "Burdingilea, gizon lasaia eta emaztearen gonapean bizi dena, bileran zehar lehertzen den arte.",
+          "description": "Capitalize 1 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 1,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_027",
+      "category": "cappunct",
+      "source": "elhuyar",
+      "input": "txantxa moduan hartu dugu denok baina oso gustu txarrekoa da",
+      "expected": "Txantxa moduan hartu dugu denok, baina oso gustu txarrekoa da.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "txantxa moduan hartu dugu denok baina oso gustu txarrekoa da",
+          "correction": "Txantxa moduan hartu dugu denok, baina oso gustu txarrekoa da.",
+          "description": "Capitalize 1 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 1,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_028",
+      "category": "cappunct",
+      "source": "elhuyar",
+      "input": "ezker abertzalea ez dute gonbidatu eztabaidara eta ez da han izan",
+      "expected": "Ezker abertzalea ez dute gonbidatu eztabaidara, eta ez da han izan.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "ezker abertzalea ez dute gonbidatu eztabaidara eta ez da han izan",
+          "correction": "Ezker abertzalea ez dute gonbidatu eztabaidara, eta ez da han izan.",
+          "description": "Capitalize 1 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 1,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_029",
+      "category": "cappunct",
+      "source": "elhuyar",
+      "input": "berak badaki zer den buruz buruko txapeldun izatea 2016 eta bi aldiz irabazi du super prestige",
+      "expected": "Berak badaki zer den buruz buruko txapeldun izatea (2016), eta bi aldiz irabazi du Super Prestige.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "berak badaki zer den buruz buruko txapeldun izatea 2016 eta bi aldiz irabazi du super prestige",
+          "correction": "Berak badaki zer den buruz buruko txapeldun izatea (2016), eta bi aldiz irabazi du Super Prestige.",
+          "description": "Capitalize 3 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 3,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "cappunct_030",
+      "category": "cappunct",
+      "source": "elhuyar",
+      "input": "eta hain zuzen ere ikertzaile horietariko batzuk dira biltzarrean parte hartuko dutenak",
+      "expected": "Eta, hain zuzen ere, ikertzaile horietariko batzuk dira biltzarrean parte hartuko dutenak.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "eta hain zuzen ere ikertzaile horietariko batzuk dira biltzarrean parte hartuko dutenak",
+          "correction": "Eta, hain zuzen ere, ikertzaile horietariko batzuk dira biltzarrean parte hartuko dutenak.",
+          "description": "Capitalize 1 word(s); Add trailing punctuation"
+        }
+      ],
+      "metadata": {
+        "n_capitalization": 1,
+        "has_trailing_punct": true,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_001",
+      "category": "spelling",
+      "source": "wikipedia",
+      "input": "Latindar alfabetoaren bidezz idazten da.",
+      "expected": "Latindar alfabetoaren bidez idazten da.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "bidezz",
+          "correction": "bidez",
+          "description": "Typo type: double"
+        }
+      ],
+      "metadata": {
+        "typo_type": "double",
+        "word_position": 2,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_002",
+      "category": "spelling",
+      "source": "wikipedia",
+      "input": "Hizkuntza bakartua da, ez baitzaio munduko hizkuntzen artean ahaidetasunik vaurkitu.",
+      "expected": "Hizkuntza bakartua da, ez baitzaio munduko hizkuntzen artean ahaidetasunik aurkitu.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "vaurkitu",
+          "correction": "aurkitu",
+          "description": "Typo type: insert"
+        }
+      ],
+      "metadata": {
+        "typo_type": "insert",
+        "word_position": 9,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_003",
+      "category": "spelling",
+      "source": "wikipedia",
+      "input": "Erdi Aroan, gutxienez RErioxan eta Burgosko ipar-ekialdean ere hitz egin zela dokumentatuta dago.",
+      "expected": "Erdi Aroan, gutxienez Errioxan eta Burgosko ipar-ekialdean ere hitz egin zela dokumentatuta dago.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "RErioxan",
+          "correction": "Errioxan",
+          "description": "Typo type: transpose"
+        }
+      ],
+      "metadata": {
+        "typo_type": "transpose",
+        "word_position": 3,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_004",
+      "category": "spelling",
+      "source": "wikipedia",
+      "input": "Euskara Araba, Bizkaia, Gipuzkoa, Lapurdi, Nafarroa eta Zubceroa herrialdeetan hitz egiten da.",
+      "expected": "Euskara Araba, Bizkaia, Gipuzkoa, Lapurdi, Nafarroa eta Zuberoa herrialdeetan hitz egiten da.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "Zubceroa",
+          "correction": "Zuberoa",
+          "description": "Typo type: insert"
+        }
+      ],
+      "metadata": {
+        "typo_type": "insert",
+        "word_position": 7,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_005",
+      "category": "spelling",
+      "source": "wikipedia",
+      "input": "Ipar Euskal Herrian, euskarak ez du aginpidea duten eraounde publikoen onarpenik.",
+      "expected": "Ipar Euskal Herrian, euskarak ez du aginpidea duten erakunde publikoen onarpenik.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "eraounde",
+          "correction": "erakunde",
+          "description": "Typo type: adj_typo"
+        }
+      ],
+      "metadata": {
+        "typo_type": "adj_typo",
+        "word_position": 8,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_006",
+      "category": "spelling",
+      "source": "wikipedia",
+      "input": "Euskarak inguruko hizkuntzekin ilaka urteko harremana izan du.",
+      "expected": "Euskarak inguruko hizkuntzekin milaka urteko harremana izan du.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "ilaka",
+          "correction": "milaka",
+          "description": "Typo type: delete"
+        }
+      ],
+      "metadata": {
+        "typo_type": "delete",
+        "word_position": 3,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_007",
+      "category": "spelling",
+      "source": "wikipedia",
+      "input": "Euskara Euskal Herriko hiizkuntza da.",
+      "expected": "Euskara Euskal Herriko hizkuntza da.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "hiizkuntza",
+          "correction": "hizkuntza",
+          "description": "Typo type: double"
+        }
+      ],
+      "metadata": {
+        "typo_type": "double",
+        "word_position": 3,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_008",
+      "category": "spelling",
+      "source": "wikipedia",
+      "input": "1968an Euskaltzaindiak Arantzazuko santutegian (Oñati, Gipuzkoa) egin zen batzarrean abiatu zen batasun prozesutik sortu zen euskara batua.",
+      "expected": "1968an Euskaltzaindiak Arantzazuko santutegian (Oñati, Gipuzkoa) egin zuen batzarrean abiatu zen batasun prozesutik sortu zen euskara batua.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "zen",
+          "correction": "zuen",
+          "description": "Typo type: delete"
+        }
+      ],
+      "metadata": {
+        "typo_type": "delete",
+        "word_position": 7,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_009",
+      "category": "spelling",
+      "source": "wikipedia",
+      "input": "1729an, Manuel Larramendi jesuiatk El Imposible Vencido izeneko euskararen gramatika bat argitaratu zuen Salamancan.",
+      "expected": "1729an, Manuel Larramendi jesuitak El Imposible Vencido izeneko euskararen gramatika bat argitaratu zuen Salamancan.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "jesuiatk",
+          "correction": "jesuitak",
+          "description": "Typo type: transpose"
+        }
+      ],
+      "metadata": {
+        "typo_type": "transpose",
+        "word_position": 3,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_010",
+      "category": "spelling",
+      "source": "wikipedia",
+      "input": "Olerki liburua da eta haren egilea, Bernart Etxepare, Nafarroa Behereko heerri txiki bateko apaiza izan zen.",
+      "expected": "Olerki liburua da eta haren egilea, Bernart Etxepare, Nafarroa Behereko herri txiki bateko apaiza izan zen.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "heerri",
+          "correction": "herri",
+          "description": "Typo type: double"
+        }
+      ],
+      "metadata": {
+        "typo_type": "double",
+        "word_position": 10,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_011",
+      "category": "spelling",
+      "source": "wikipedia",
+      "input": "Gernikako Estatutuak euskara Euskal Autonomia Erkidegoko berezko hizkuntza izendatu zuen eta gaatelaniarekin batera ofizial egin zuen Araba, Bizkai eta Gipuzkoan.",
+      "expected": "Gernikako Estatutuak euskara Euskal Autonomia Erkidegoko berezko hizkuntza izendatu zuen eta gaztelaniarekin batera ofizial egin zuen Araba, Bizkai eta Gipuzkoan.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "gaatelaniarekin",
+          "correction": "gaztelaniarekin",
+          "description": "Typo type: adj_typo"
+        }
+      ],
+      "metadata": {
+        "typo_type": "adj_typo",
+        "word_position": 11,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_012",
+      "category": "spelling",
+      "source": "wikipedia",
+      "input": "Euskaraaren dialektoei euskalkiak deritze.",
+      "expected": "Euskararen dialektoei euskalkiak deritze.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "Euskaraaren",
+          "correction": "Euskararen",
+          "description": "Typo type: double"
+        }
+      ],
+      "metadata": {
+        "typo_type": "double",
+        "word_position": 0,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_013",
+      "category": "spelling",
+      "source": "wikipedia",
+      "input": "1545ean argitaratu zen lehen liburua euskaraz, «Linguae Vasconum Primitiae» ijzenekoa.",
+      "expected": "1545ean argitaratu zen lehen liburua euskaraz, «Linguae Vasconum Primitiae» izenekoa.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "ijzenekoa",
+          "correction": "izenekoa",
+          "description": "Typo type: insert"
+        }
+      ],
+      "metadata": {
+        "typo_type": "insert",
+        "word_position": 9,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_014",
+      "category": "spelling",
+      "source": "wikipedia",
+      "input": "Feankismoaren garaian (1936–1977) euskarak jazarpen arrotza pairatu zuen eta ia desagertu zen, baina berriro ere indartu egin da 1960ko hamarkadaz geroztik.",
+      "expected": "Frankismoaren garaian (1936–1977) euskarak jazarpen arrotza pairatu zuen eta ia desagertu zen, baina berriro ere indartu egin da 1960ko hamarkadaz geroztik.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "Feankismoaren",
+          "correction": "Frankismoaren",
+          "description": "Typo type: adj_typo"
+        }
+      ],
+      "metadata": {
+        "typo_type": "adj_typo",
+        "word_position": 0,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_015",
+      "category": "spelling",
+      "source": "wikipedia",
+      "input": "Aitzineuskararen sustrairik zaharrenak, Erromatar Inperioaren aurretikoak, Akitania osoan eta Bizkiko golkotik Andorraraino bitarteko Pirinioen bi aldeetan agertu dira.",
+      "expected": "Aitzineuskararen sustrairik zaharrenak, Erromatar Inperioaren aurretikoak, Akitania osoan eta Bizkaiko golkotik Andorraraino bitarteko Pirinioen bi aldeetan agertu dira.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "Bizkiko",
+          "correction": "Bizkaiko",
+          "description": "Typo type: delete"
+        }
+      ],
+      "metadata": {
+        "typo_type": "delete",
+        "word_position": 9,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_016",
+      "category": "spelling",
+      "source": "wikipedia",
+      "input": "Nafarroa Garaian, Euskararen Legearen eraginez, herrialdeko ipar-mendebaldean soilik da kaoofiziala.",
+      "expected": "Nafarroa Garaian, Euskararen Legearen eraginez, herrialdeko ipar-mendebaldean soilik da koofiziala.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "kaoofiziala",
+          "correction": "koofiziala",
+          "description": "Typo type: insert"
+        }
+      ],
+      "metadata": {
+        "typo_type": "insert",
+        "word_position": 9,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_017",
+      "category": "spelling",
+      "source": "wikipedia",
+      "input": "2016ko VI. Inkesta Sozioliinguistikoaren arabera, euskararen eremu osoan bizi ziren 16 urtetik gorako biztanleen % 28,4 euskalduna zen.",
+      "expected": "2016ko VI. Inkesta Soziolinguistikoaren arabera, euskararen eremu osoan bizi ziren 16 urtetik gorako biztanleen % 28,4 euskalduna zen.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "Sozioliinguistikoaren",
+          "correction": "Soziolinguistikoaren",
+          "description": "Typo type: double"
+        }
+      ],
+      "metadata": {
+        "typo_type": "double",
+        "word_position": 3,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_018",
+      "category": "spelling",
+      "source": "wikipedia",
+      "input": "Morfologiari dagokionez, hizkuntza ergatibokoa eta eranskaria da, iindoeuropar hizkuntzak ez bezala.",
+      "expected": "Morfologiari dagokionez, hizkuntza ergatibokoa eta eranskaria da, indoeuropar hizkuntzak ez bezala.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "iindoeuropar",
+          "correction": "indoeuropar",
+          "description": "Typo type: double"
+        }
+      ],
+      "metadata": {
+        "typo_type": "double",
+        "word_position": 7,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_019",
+      "category": "spelling",
+      "source": "wikipedia",
+      "input": "Gaur egun, Euskal Herrian bertan ere hizkuntza gutxitua da, lurralde horretan gaztelania eta frantsesa nagusitu baiitira.",
+      "expected": "Gaur egun, Euskal Herrian bertan ere hizkuntza gutxitua da, lurralde horretan gaztelania eta frantsesa nagusitu baitira.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "baiitira",
+          "correction": "baitira",
+          "description": "Typo type: double"
+        }
+      ],
+      "metadata": {
+        "typo_type": "double",
+        "word_position": 15,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_020",
+      "category": "spelling",
+      "source": "wikipedia",
+      "input": "Euskaraz mintoz direnei euskaldun deritze.",
+      "expected": "Euskaraz mintzo direnei euskaldun deritze.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "mintoz",
+          "correction": "mintzo",
+          "description": "Typo type: transpose"
+        }
+      ],
+      "metadata": {
+        "typo_type": "transpose",
+        "word_position": 1,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_021",
+      "category": "spelling",
+      "source": "elhuyar",
+      "input": "Gufxienez 22 lagun hil dituzte Iraken egindako erasoetan.",
+      "expected": "Gutxienez 22 lagun hil dituzte Iraken egindako erasoetan.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "Gufxienez",
+          "correction": "Gutxienez",
+          "description": "Typo type: adj_typo"
+        }
+      ],
+      "metadata": {
+        "typo_type": "adj_typo",
+        "word_position": 0,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_022",
+      "category": "spelling",
+      "source": "elhuyar",
+      "input": "Jasotzen duen uraren %4 besterik ezin du pilatu lur iragazkorretsn eraikitako azpiegitura horrek.",
+      "expected": "Jasotzen duen uraren %4 besterik ezin du pilatu lur iragazkorretan eraikitako azpiegitura horrek.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "iragazkorretsn",
+          "correction": "iragazkorretan",
+          "description": "Typo type: adj_typo"
+        }
+      ],
+      "metadata": {
+        "typo_type": "adj_typo",
+        "word_position": 9,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_023",
+      "category": "spelling",
+      "source": "elhuyar",
+      "input": "Aakotan aurpegi horiek elkarren oso antzekoak zirenik.",
+      "expected": "Askotan aurpegi horiek elkarren oso antzekoak zirenik.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "Aakotan",
+          "correction": "Askotan",
+          "description": "Typo type: adj_typo"
+        }
+      ],
+      "metadata": {
+        "typo_type": "adj_typo",
+        "word_position": 0,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_024",
+      "category": "spelling",
+      "source": "elhuyar",
+      "input": "Bestetik, liburutegian Olatzagutira azen bi urtetan etorritako ikasleak egoten dira astelehenetik ostegunera.",
+      "expected": "Bestetik, liburutegian Olatzagutira azken bi urtetan etorritako ikasleak egoten dira astelehenetik ostegunera.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "azen",
+          "correction": "azken",
+          "description": "Typo type: delete"
+        }
+      ],
+      "metadata": {
+        "typo_type": "delete",
+        "word_position": 3,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_025",
+      "category": "spelling",
+      "source": "elhuyar",
+      "input": "Defizientzia horietan handiena berokuntza-sistemarena da ziurrenik, galdara gelarena batezz ere, dagoeneko ez baititu betetzen legeak eskatzen dituen gutxieneko baldintzak.",
+      "expected": "Defizientzia horietan handiena berokuntza-sistemarena da ziurrenik, galdara gelarena batez ere, dagoeneko ez baititu betetzen legeak eskatzen dituen gutxieneko baldintzak.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "batezz",
+          "correction": "batez",
+          "description": "Typo type: double"
+        }
+      ],
+      "metadata": {
+        "typo_type": "double",
+        "word_position": 8,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_026",
+      "category": "spelling",
+      "source": "elhuyar",
+      "input": "Lege nagusi gehienak Espainiako Gobernuaren sekuetan daude.",
+      "expected": "Lege nagusi gehienak Espainiako Gobernuaren eskuetan daude.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "sekuetan",
+          "correction": "eskuetan",
+          "description": "Typo type: transpose"
+        }
+      ],
+      "metadata": {
+        "typo_type": "transpose",
+        "word_position": 5,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_027",
+      "category": "spelling",
+      "source": "elhuyar",
+      "input": "Elkarteak dio natur ondare bat deuseztatuko dtuela eta kostatik gertu halako bide gutxi geratzen dela.",
+      "expected": "Elkarteak dio natur ondare bat deuseztatuko dutela eta kostatik gertu halako bide gutxi geratzen dela.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "dtuela",
+          "correction": "dutela",
+          "description": "Typo type: transpose"
+        }
+      ],
+      "metadata": {
+        "typo_type": "transpose",
+        "word_position": 6,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_028",
+      "category": "spelling",
+      "source": "elhuyar",
+      "input": "Ttiulua irabazteko hautagai ez den arren, Rossi legenda bat den arren, Pedrosak kalitate handiagoa duen arren, estatubatuarra munduko txapelduna da, eta hori ez dago edonoren esku.",
+      "expected": "Titulua irabazteko hautagai ez den arren, Rossi legenda bat den arren, Pedrosak kalitate handiagoa duen arren, estatubatuarra munduko txapelduna da, eta hori ez dago edonoren esku.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "Ttiulua",
+          "correction": "Titulua",
+          "description": "Typo type: transpose"
+        }
+      ],
+      "metadata": {
+        "typo_type": "transpose",
+        "word_position": 0,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_029",
+      "category": "spelling",
+      "source": "elhuyar",
+      "input": "Gero eta euskarazko film gehiago egiten ari dira azkenn urteotan, eta hainbatek ibilbide oparoa egin dute.",
+      "expected": "Gero eta euskarazko film gehiago egiten ari dira azken urteotan, eta hainbatek ibilbide oparoa egin dute.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "azkenn",
+          "correction": "azken",
+          "description": "Typo type: double"
+        }
+      ],
+      "metadata": {
+        "typo_type": "double",
+        "word_position": 8,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "spelling_030",
+      "category": "spelling",
+      "source": "elhuyar",
+      "input": "Txirrindulariak ez du bat-batean irabaazi grina hori.",
+      "expected": "Txirrindulariak ez du bat-batean irabazi grina hori.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "irabaazi",
+          "correction": "irabazi",
+          "description": "Typo type: double"
+        }
+      ],
+      "metadata": {
+        "typo_type": "double",
+        "word_position": 4,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "mixed_001",
+      "category": "mixed",
+      "source": "wikipedia+typo",
+      "input": "euskarak inguruoo hizkuntzekin milaka urteko harremana izan du",
+      "expected": "Euskarak inguruko hizkuntzekin milaka urteko harremana izan du.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "inguruoo",
+          "correction": "inguruko",
+          "description": "Typo type: adj_typo"
+        },
+        {
+          "type": "cappunct",
+          "original": "euskarak inguruko hizkuntzekin milaka urteko harremana izan du",
+          "correction": "Euskarak inguruko hizkuntzekin milaka urteko harremana izan du.",
+          "description": "Capitalize + add punctuation"
+        }
+      ],
+      "metadata": {
+        "sub_type": "cappunct+spelling",
+        "typo_type": "adj_typo",
+        "n_errors": 2
+      }
+    },
+    {
+      "id": "mixed_002",
+      "category": "mixed",
+      "source": "wikipedia+typo",
+      "input": "euskara araba bizkaia gipuzkoa lapurdi nafarroa eta lzuberoa herrialdeetan hitz egiten da",
+      "expected": "Euskara Araba, Bizkaia, Gipuzkoa, Lapurdi, Nafarroa eta Zuberoa herrialdeetan hitz egiten da.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "lzuberoa",
+          "correction": "zuberoa",
+          "description": "Typo type: insert"
+        },
+        {
+          "type": "cappunct",
+          "original": "euskara araba bizkaia gipuzkoa lapurdi nafarroa eta zuberoa herrialdeetan hitz egiten da",
+          "correction": "Euskara Araba, Bizkaia, Gipuzkoa, Lapurdi, Nafarroa eta Zuberoa herrialdeetan hitz egiten da.",
+          "description": "Capitalize + add punctuation"
+        }
+      ],
+      "metadata": {
+        "sub_type": "cappunct+spelling",
+        "typo_type": "insert",
+        "n_errors": 2
+      }
+    },
+    {
+      "id": "mixed_003",
+      "category": "mixed",
+      "source": "wikipedia+typo",
+      "input": "euskara euskal herriko hizkuntaa da",
+      "expected": "Euskara Euskal Herriko hizkuntza da.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "hizkuntaa",
+          "correction": "hizkuntza",
+          "description": "Typo type: adj_typo"
+        },
+        {
+          "type": "cappunct",
+          "original": "euskara euskal herriko hizkuntza da",
+          "correction": "Euskara Euskal Herriko hizkuntza da.",
+          "description": "Capitalize + add punctuation"
+        }
+      ],
+      "metadata": {
+        "sub_type": "cappunct+spelling",
+        "typo_type": "adj_typo",
+        "n_errors": 2
+      }
+    },
+    {
+      "id": "mixed_004",
+      "category": "mixed",
+      "source": "wikipedia+typo",
+      "input": "olerki liburua da eta harrn egilea bernart etxepare nafarroa behereko herri txiki bateko apaiza izan zen",
+      "expected": "Olerki liburua da eta haren egilea, Bernart Etxepare, Nafarroa Behereko herri txiki bateko apaiza izan zen.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "harrn",
+          "correction": "haren",
+          "description": "Typo type: adj_typo"
+        },
+        {
+          "type": "cappunct",
+          "original": "olerki liburua da eta haren egilea bernart etxepare nafarroa behereko herri txiki bateko apaiza izan zen",
+          "correction": "Olerki liburua da eta haren egilea, Bernart Etxepare, Nafarroa Behereko herri txiki bateko apaiza izan zen.",
+          "description": "Capitalize + add punctuation"
+        }
+      ],
+      "metadata": {
+        "sub_type": "cappunct+spelling",
+        "typo_type": "adj_typo",
+        "n_errors": 2
+      }
+    },
+    {
+      "id": "mixed_005",
+      "category": "mixed",
+      "source": "wikipedia+typo",
+      "input": "gernikako estatutuak euskara eukal autonomia erkidegoko berezko hizkuntza izendatu zuen eta gaztelaniarekin batera ofizial egin zuen araba bizkai eta gipuzkoan",
+      "expected": "Gernikako Estatutuak euskara Euskal Autonomia Erkidegoko berezko hizkuntza izendatu zuen eta gaztelaniarekin batera ofizial egin zuen Araba, Bizkai eta Gipuzkoan.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "eukal",
+          "correction": "euskal",
+          "description": "Typo type: delete"
+        },
+        {
+          "type": "cappunct",
+          "original": "gernikako estatutuak euskara euskal autonomia erkidegoko berezko hizkuntza izendatu zuen eta gaztelaniarekin batera ofizial egin zuen araba bizkai eta gipuzkoan",
+          "correction": "Gernikako Estatutuak euskara Euskal Autonomia Erkidegoko berezko hizkuntza izendatu zuen eta gaztelaniarekin batera ofizial egin zuen Araba, Bizkai eta Gipuzkoan.",
+          "description": "Capitalize + add punctuation"
+        }
+      ],
+      "metadata": {
+        "sub_type": "cappunct+spelling",
+        "typo_type": "delete",
+        "n_errors": 2
+      }
+    },
+    {
+      "id": "mixed_006",
+      "category": "mixed",
+      "source": "wikipedia+typo",
+      "input": "nafarroa agraian euskararen legearen eraginez herrialdeko ipar mendebaldean soilik da koofiziala",
+      "expected": "Nafarroa Garaian, Euskararen Legearen eraginez, herrialdeko ipar-mendebaldean soilik da koofiziala.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "agraian",
+          "correction": "garaian",
+          "description": "Typo type: transpose"
+        },
+        {
+          "type": "cappunct",
+          "original": "nafarroa garaian euskararen legearen eraginez herrialdeko ipar mendebaldean soilik da koofiziala",
+          "correction": "Nafarroa Garaian, Euskararen Legearen eraginez, herrialdeko ipar-mendebaldean soilik da koofiziala.",
+          "description": "Capitalize + add punctuation"
+        }
+      ],
+      "metadata": {
+        "sub_type": "cappunct+spelling",
+        "typo_type": "transpose",
+        "n_errors": 2
+      }
+    },
+    {
+      "id": "mixed_007",
+      "category": "mixed",
+      "source": "wikipedia+typo",
+      "input": "erdi aroan gutxienez errioxan eta burgosko ipar ekialdean ere hitx egin zela dokumentatuta dago",
+      "expected": "Erdi Aroan, gutxienez Errioxan eta Burgosko ipar-ekialdean ere hitz egin zela dokumentatuta dago.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "hitx",
+          "correction": "hitz",
+          "description": "Typo type: adj_typo"
+        },
+        {
+          "type": "cappunct",
+          "original": "erdi aroan gutxienez errioxan eta burgosko ipar ekialdean ere hitz egin zela dokumentatuta dago",
+          "correction": "Erdi Aroan, gutxienez Errioxan eta Burgosko ipar-ekialdean ere hitz egin zela dokumentatuta dago.",
+          "description": "Capitalize + add punctuation"
+        }
+      ],
+      "metadata": {
+        "sub_type": "cappunct+spelling",
+        "typo_type": "adj_typo",
+        "n_errors": 2
+      }
+    },
+    {
+      "id": "mixed_008",
+      "category": "mixed",
+      "source": "wikipedia+typo",
+      "input": "1545ean argitaratu zen lehen liburua euskafaz linguae vasconum primitiae izenekoa",
+      "expected": "1545ean argitaratu zen lehen liburua euskaraz, «Linguae Vasconum Primitiae» izenekoa.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "euskafaz",
+          "correction": "euskaraz",
+          "description": "Typo type: adj_typo"
+        },
+        {
+          "type": "cappunct",
+          "original": "1545ean argitaratu zen lehen liburua euskaraz linguae vasconum primitiae izenekoa",
+          "correction": "1545ean argitaratu zen lehen liburua euskaraz, «Linguae Vasconum Primitiae» izenekoa.",
+          "description": "Capitalize + add punctuation"
+        }
+      ],
+      "metadata": {
+        "sub_type": "cappunct+spelling",
+        "typo_type": "adj_typo",
+        "n_errors": 2
+      }
+    },
+    {
+      "id": "mixed_009",
+      "category": "mixed",
+      "source": "wikipedia+typo",
+      "input": "esukaraz mintzo direnei euskaldun deritze",
+      "expected": "Euskaraz mintzo direnei euskaldun deritze.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "esukaraz",
+          "correction": "euskaraz",
+          "description": "Typo type: transpose"
+        },
+        {
+          "type": "cappunct",
+          "original": "euskaraz mintzo direnei euskaldun deritze",
+          "correction": "Euskaraz mintzo direnei euskaldun deritze.",
+          "description": "Capitalize + add punctuation"
+        }
+      ],
+      "metadata": {
+        "sub_type": "cappunct+spelling",
+        "typo_type": "transpose",
+        "n_errors": 2
+      }
+    },
+    {
+      "id": "mixed_010",
+      "category": "mixed",
+      "source": "wikipedia+typo",
+      "input": "ipar euskal herrian euskaarak ez du aginpidea duten erakunde publikoen onarpenik",
+      "expected": "Ipar Euskal Herrian, euskarak ez du aginpidea duten erakunde publikoen onarpenik.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "euskaarak",
+          "correction": "euskarak",
+          "description": "Typo type: double"
+        },
+        {
+          "type": "cappunct",
+          "original": "ipar euskal herrian euskarak ez du aginpidea duten erakunde publikoen onarpenik",
+          "correction": "Ipar Euskal Herrian, euskarak ez du aginpidea duten erakunde publikoen onarpenik.",
+          "description": "Capitalize + add punctuation"
+        }
+      ],
+      "metadata": {
+        "sub_type": "cappunct+spelling",
+        "typo_type": "double",
+        "n_errors": 2
+      }
+    },
+    {
+      "id": "mixed_011",
+      "category": "mixed",
+      "source": "elhuyar+cappunct",
+      "input": "litekeela da antonio basagoiti ppko presidenteak gaur ematea bileraren berri legebiltzarkide akta jaso ostean agerraldia iragarrita baitu legebiltzarrean",
+      "expected": "Litekeena da Antonio Basagoiti PPko presidenteak gaur ematea bileraren berri, legebiltzarkide akta jaso ostean agerraldia iragarrita baitu Legebiltzarrean.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "Litekeela",
+          "correction": "Litekeena",
+          "description": "R4: subordination/connector morphology error"
+        },
+        {
+          "type": "cappunct",
+          "original": "litekeela da antonio basagoiti ppko presidenteak gaur ematea bileraren berri legebiltzarkide akta jaso ostean agerraldia iragarrita baitu legebiltzarrean",
+          "correction": "Litekeela da Antonio Basagoiti PPko presidenteak gaur ematea bileraren berri, legebiltzarkide akta jaso ostean agerraldia iragarrita baitu Legebiltzarrean.",
+          "description": "Capitalize + add punctuation"
+        }
+      ],
+      "metadata": {
+        "sub_type": "cappunct+grammar",
+        "error_types": "R4",
+        "n_errors": 2
+      }
+    },
+    {
+      "id": "mixed_012",
+      "category": "mixed",
+      "source": "elhuyar+cappunct",
+      "input": "egun batean gizon horrek argi distiratsu bat ikusten du eta hortik aurrera harrigarriak bezain arraroak diren azalpenik gabeko mila gauza gertatzen hasten dizkio",
+      "expected": "Egun batean  gizon horrek argi distiratsu bat ikusten du eta hortik aurrera  harrigarriak bezain arraroak diren azalpenik gabeko mila gauza gertatzen  hasten zaizkio.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "dizkio.",
+          "correction": "zaizkio.",
+          "description": "R2: auxiliary verb disagreement (person/number)"
+        },
+        {
+          "type": "cappunct",
+          "original": "egun batean gizon horrek argi distiratsu bat ikusten du eta hortik aurrera harrigarriak bezain arraroak diren azalpenik gabeko mila gauza gertatzen hasten dizkio",
+          "correction": "Egun batean  gizon horrek argi distiratsu bat ikusten du eta hortik aurrera  harrigarriak bezain arraroak diren azalpenik gabeko mila gauza gertatzen  hasten dizkio.",
+          "description": "Capitalize + add punctuation"
+        }
+      ],
+      "metadata": {
+        "sub_type": "cappunct+grammar",
+        "error_types": "R2",
+        "n_errors": 2
+      }
+    },
+    {
+      "id": "mixed_013",
+      "category": "mixed",
+      "source": "elhuyar+cappunct",
+      "input": "ordezkoa ladhuie correia pulu hijar guffroy delvin rees edo fa'atomu",
+      "expected": "Ordezkoak: Ladhuie, Correia, Pulu, Hijar, Guffroy, Delvin, Rees edo Fa'Atomu.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "Ordezkoa:",
+          "correction": "Ordezkoak:",
+          "description": "R3: case suffix error (ergative/absolutive/dative)"
+        },
+        {
+          "type": "cappunct",
+          "original": "ordezkoa ladhuie correia pulu hijar guffroy delvin rees edo fa'atomu",
+          "correction": "Ordezkoa: Ladhuie, Correia, Pulu, Hijar, Guffroy, Delvin, Rees edo Fa'Atomu.",
+          "description": "Capitalize + add punctuation"
+        }
+      ],
+      "metadata": {
+        "sub_type": "cappunct+grammar",
+        "error_types": "R3",
+        "n_errors": 2
+      }
+    },
+    {
+      "id": "mixed_014",
+      "category": "mixed",
+      "source": "elhuyar+cappunct",
+      "input": "historikoki eh bilduko adolfo araizak gogora ekarri zuen 1959ra arte diputazioak arautzen zituela nafarroako errepideak araban bezala",
+      "expected": "Historikoki, EH Bilduko Adolfo Araizek gogora ekarri zuen 1959ra arte diputazioak arautzen zituela Nafarroako errepideak, Araban bezala.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "Araizak",
+          "correction": "Araizek",
+          "description": "R3: case suffix error (ergative/absolutive/dative)"
+        },
+        {
+          "type": "cappunct",
+          "original": "historikoki eh bilduko adolfo araizak gogora ekarri zuen 1959ra arte diputazioak arautzen zituela nafarroako errepideak araban bezala",
+          "correction": "Historikoki, EH Bilduko Adolfo Araizak gogora ekarri zuen 1959ra arte diputazioak arautzen zituela Nafarroako errepideak, Araban bezala.",
+          "description": "Capitalize + add punctuation"
+        }
+      ],
+      "metadata": {
+        "sub_type": "cappunct+grammar",
+        "error_types": "R3",
+        "n_errors": 2
+      }
+    },
+    {
+      "id": "mixed_015",
+      "category": "mixed",
+      "source": "elhuyar+cappunct",
+      "input": "izan ere adierazi dutelako arabera \"presioak\" jasan dituzte gune komertziala donostiako eremuetara eramateko",
+      "expected": "Izan ere, adierazi dutenaren arabera, \"presioak\" jasan dituzte gune komertziala Donostiako eremuetara eramateko.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "dutelako",
+          "correction": "dutenaren",
+          "description": "R4: subordination/connector morphology error"
+        },
+        {
+          "type": "cappunct",
+          "original": "izan ere adierazi dutelako arabera \"presioak\" jasan dituzte gune komertziala donostiako eremuetara eramateko",
+          "correction": "Izan ere, adierazi dutelako arabera, \"presioak\" jasan dituzte gune komertziala Donostiako eremuetara eramateko.",
+          "description": "Capitalize + add punctuation"
+        }
+      ],
+      "metadata": {
+        "sub_type": "cappunct+grammar",
+        "error_types": "R4",
+        "n_errors": 2
+      }
+    },
+    {
+      "id": "mixed_016",
+      "category": "mixed",
+      "source": "elhuyar+cappunct",
+      "input": "jendea gurera gonbidatzen dugu eta bertan dagoelako berri ematen diegu",
+      "expected": "Jendea gurera gonbidatzen dugu eta bertan dagoenaren berri ematen diegu.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "dagoelako",
+          "correction": "dagoenaren",
+          "description": "R4: subordination/connector morphology error"
+        },
+        {
+          "type": "cappunct",
+          "original": "jendea gurera gonbidatzen dugu eta bertan dagoelako berri ematen diegu",
+          "correction": "Jendea gurera gonbidatzen dugu eta bertan dagoelako berri ematen diegu.",
+          "description": "Capitalize + add punctuation"
+        }
+      ],
+      "metadata": {
+        "sub_type": "cappunct+grammar",
+        "error_types": "R4",
+        "n_errors": 2
+      }
+    },
+    {
+      "id": "mixed_017",
+      "category": "mixed",
+      "source": "elhuyar+cappunct",
+      "input": "hirugarren aldia da eliza katolikoko burua irlandako gotzainekin biltzen dela",
+      "expected": "Hirugarren aldia da Eliza katolikoko burua Irlandako gotzainekin biltzen dena.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "dela.",
+          "correction": "dena.",
+          "description": "R4: subordination/connector morphology error"
+        },
+        {
+          "type": "cappunct",
+          "original": "hirugarren aldia da eliza katolikoko burua irlandako gotzainekin biltzen dela",
+          "correction": "Hirugarren aldia da Eliza katolikoko burua Irlandako gotzainekin biltzen dela.",
+          "description": "Capitalize + add punctuation"
+        }
+      ],
+      "metadata": {
+        "sub_type": "cappunct+grammar",
+        "error_types": "R4",
+        "n_errors": 2
+      }
+    },
+    {
+      "id": "mixed_018",
+      "category": "mixed",
+      "source": "elhuyar+cappunct",
+      "input": "batasuneko kideen kontrako euroaginduak diru kontuen blokeatzea eta abar aipatu die goienetxek horren adibide gisa",
+      "expected": "Batasuneko kideen kontrako euroaginduak, diru kontuen blokeatzea eta abar aipatu ditu Goienetxek, horren adibide gisa.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "die",
+          "correction": "ditu",
+          "description": "R2: auxiliary verb disagreement (person/number)"
+        },
+        {
+          "type": "cappunct",
+          "original": "batasuneko kideen kontrako euroaginduak diru kontuen blokeatzea eta abar aipatu die goienetxek horren adibide gisa",
+          "correction": "Batasuneko kideen kontrako euroaginduak, diru kontuen blokeatzea eta abar aipatu die Goienetxek, horren adibide gisa.",
+          "description": "Capitalize + add punctuation"
+        }
+      ],
+      "metadata": {
+        "sub_type": "cappunct+grammar",
+        "error_types": "R2",
+        "n_errors": 2
+      }
+    },
+    {
+      "id": "mixed_019",
+      "category": "mixed",
+      "source": "elhuyar+cappunct",
+      "input": "kultur hiriburuaren hautagaitzaren harira behin baino gehiagotan aipatu izan den eurohiria edo baionaren eta donostiaren arteko lotura adibidez ez du sobera gustatzen arkotxari",
+      "expected": "Kultur hiriburuaren hautagaitzaren harira behin baino gehiagotan aipatu izan den Eurohiria edo Baionaren eta Donostiaren arteko lotura adibidez, ez zaio sobera gustatzen Arkotxari.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "du",
+          "correction": "zaio",
+          "description": "R2: auxiliary verb disagreement (person/number)"
+        },
+        {
+          "type": "cappunct",
+          "original": "kultur hiriburuaren hautagaitzaren harira behin baino gehiagotan aipatu izan den eurohiria edo baionaren eta donostiaren arteko lotura adibidez ez du sobera gustatzen arkotxari",
+          "correction": "Kultur hiriburuaren hautagaitzaren harira behin baino gehiagotan aipatu izan den Eurohiria edo Baionaren eta Donostiaren arteko lotura adibidez, ez du sobera gustatzen Arkotxari.",
+          "description": "Capitalize + add punctuation"
+        }
+      ],
+      "metadata": {
+        "sub_type": "cappunct+grammar",
+        "error_types": "R2",
+        "n_errors": 2
+      }
+    },
+    {
+      "id": "mixed_020",
+      "category": "mixed",
+      "source": "elhuyar+cappunct",
+      "input": "funtsezkoa irudiekin eta begiradekin kontatzen dela da\" azaldu zuen",
+      "expected": "Funtsezkoa irudiekin eta begiradekin kontatzen dena da\" azaldu zuen.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "dela",
+          "correction": "dena",
+          "description": "R4: subordination/connector morphology error"
+        },
+        {
+          "type": "cappunct",
+          "original": "funtsezkoa irudiekin eta begiradekin kontatzen dela da\" azaldu zuen",
+          "correction": "Funtsezkoa irudiekin eta begiradekin kontatzen dela da\" azaldu zuen.",
+          "description": "Capitalize + add punctuation"
+        }
+      ],
+      "metadata": {
+        "sub_type": "cappunct+grammar",
+        "error_types": "R4",
+        "n_errors": 2
+      }
+    },
+    {
+      "id": "clean_001",
+      "category": "clean",
+      "source": "wikipedia",
+      "input": "Olerki liburua da eta haren egilea, Bernart Etxepare, Nafarroa Behereko herri txiki bateko apaiza izan zen.",
+      "expected": "Olerki liburua da eta haren egilea, Bernart Etxepare, Nafarroa Behereko herri txiki bateko apaiza izan zen.",
+      "errors": [],
+      "metadata": {
+        "n_errors": 0
+      }
+    },
+    {
+      "id": "clean_002",
+      "category": "clean",
+      "source": "wikipedia",
+      "input": "Morfologiari dagokionez, hizkuntza ergatibokoa eta eranskaria da, indoeuropar hizkuntzak ez bezala.",
+      "expected": "Morfologiari dagokionez, hizkuntza ergatibokoa eta eranskaria da, indoeuropar hizkuntzak ez bezala.",
+      "errors": [],
+      "metadata": {
+        "n_errors": 0
+      }
+    },
+    {
+      "id": "clean_003",
+      "category": "clean",
+      "source": "wikipedia",
+      "input": "Gaur egun, Euskal Herrian bertan ere hizkuntza gutxitua da, lurralde horretan gaztelania eta frantsesa nagusitu baitira.",
+      "expected": "Gaur egun, Euskal Herrian bertan ere hizkuntza gutxitua da, lurralde horretan gaztelania eta frantsesa nagusitu baitira.",
+      "errors": [],
+      "metadata": {
+        "n_errors": 0
+      }
+    },
+    {
+      "id": "clean_004",
+      "category": "clean",
+      "source": "wikipedia",
+      "input": "2016ko VI. Inkesta Soziolinguistikoaren arabera, euskararen eremu osoan bizi ziren 16 urtetik gorako biztanleen % 28,4 euskalduna zen.",
+      "expected": "2016ko VI. Inkesta Soziolinguistikoaren arabera, euskararen eremu osoan bizi ziren 16 urtetik gorako biztanleen % 28,4 euskalduna zen.",
+      "errors": [],
+      "metadata": {
+        "n_errors": 0
+      }
+    },
+    {
+      "id": "clean_005",
+      "category": "clean",
+      "source": "wikipedia",
+      "input": "Nafarroa Garaian, Euskararen Legearen eraginez, herrialdeko ipar-mendebaldean soilik da koofiziala.",
+      "expected": "Nafarroa Garaian, Euskararen Legearen eraginez, herrialdeko ipar-mendebaldean soilik da koofiziala.",
+      "errors": [],
+      "metadata": {
+        "n_errors": 0
+      }
+    },
+    {
+      "id": "clean_006",
+      "category": "clean",
+      "source": "wikipedia",
+      "input": "Erdi Aroan, gutxienez Errioxan eta Burgosko ipar-ekialdean ere hitz egin zela dokumentatuta dago.",
+      "expected": "Erdi Aroan, gutxienez Errioxan eta Burgosko ipar-ekialdean ere hitz egin zela dokumentatuta dago.",
+      "errors": [],
+      "metadata": {
+        "n_errors": 0
+      }
+    },
+    {
+      "id": "clean_007",
+      "category": "clean",
+      "source": "wikipedia",
+      "input": "1545ean argitaratu zen lehen liburua euskaraz, «Linguae Vasconum Primitiae» izenekoa.",
+      "expected": "1545ean argitaratu zen lehen liburua euskaraz, «Linguae Vasconum Primitiae» izenekoa.",
+      "errors": [],
+      "metadata": {
+        "n_errors": 0
+      }
+    },
+    {
+      "id": "clean_008",
+      "category": "clean",
+      "source": "wikipedia",
+      "input": "1729an, Manuel Larramendi jesuitak El Imposible Vencido izeneko euskararen gramatika bat argitaratu zuen Salamancan.",
+      "expected": "1729an, Manuel Larramendi jesuitak El Imposible Vencido izeneko euskararen gramatika bat argitaratu zuen Salamancan.",
+      "errors": [],
+      "metadata": {
+        "n_errors": 0
+      }
+    },
+    {
+      "id": "clean_009",
+      "category": "clean",
+      "source": "wikipedia",
+      "input": "Euskararen dialektoei euskalkiak deritze.",
+      "expected": "Euskararen dialektoei euskalkiak deritze.",
+      "errors": [],
+      "metadata": {
+        "n_errors": 0
+      }
+    },
+    {
+      "id": "clean_010",
+      "category": "clean",
+      "source": "wikipedia",
+      "input": "Euskaraz mintzo direnei euskaldun deritze.",
+      "expected": "Euskaraz mintzo direnei euskaldun deritze.",
+      "errors": [],
+      "metadata": {
+        "n_errors": 0
+      }
+    },
+    {
+      "id": "clean_011",
+      "category": "clean",
+      "source": "wikipedia",
+      "input": "1968an Euskaltzaindiak Arantzazuko santutegian (Oñati, Gipuzkoa) egin zuen batzarrean abiatu zen batasun prozesutik sortu zen euskara batua.",
+      "expected": "1968an Euskaltzaindiak Arantzazuko santutegian (Oñati, Gipuzkoa) egin zuen batzarrean abiatu zen batasun prozesutik sortu zen euskara batua.",
+      "errors": [],
+      "metadata": {
+        "n_errors": 0
+      }
+    },
+    {
+      "id": "clean_012",
+      "category": "clean",
+      "source": "wikipedia",
+      "input": "Hizkuntza bakartua da, ez baitzaio munduko hizkuntzen artean ahaidetasunik aurkitu.",
+      "expected": "Hizkuntza bakartua da, ez baitzaio munduko hizkuntzen artean ahaidetasunik aurkitu.",
+      "errors": [],
+      "metadata": {
+        "n_errors": 0
+      }
+    },
+    {
+      "id": "clean_013",
+      "category": "clean",
+      "source": "wikipedia",
+      "input": "Aitzineuskararen sustrairik zaharrenak, Erromatar Inperioaren aurretikoak, Akitania osoan eta Bizkaiko golkotik Andorraraino bitarteko Pirinioen bi aldeetan agertu dira.",
+      "expected": "Aitzineuskararen sustrairik zaharrenak, Erromatar Inperioaren aurretikoak, Akitania osoan eta Bizkaiko golkotik Andorraraino bitarteko Pirinioen bi aldeetan agertu dira.",
+      "errors": [],
+      "metadata": {
+        "n_errors": 0
+      }
+    },
+    {
+      "id": "clean_014",
+      "category": "clean",
+      "source": "wikipedia",
+      "input": "Euskara Euskal Herriko hizkuntza da.",
+      "expected": "Euskara Euskal Herriko hizkuntza da.",
+      "errors": [],
+      "metadata": {
+        "n_errors": 0
+      }
+    },
+    {
+      "id": "clean_015",
+      "category": "clean",
+      "source": "wikipedia",
+      "input": "Ipar Euskal Herrian, euskarak ez du aginpidea duten erakunde publikoen onarpenik.",
+      "expected": "Ipar Euskal Herrian, euskarak ez du aginpidea duten erakunde publikoen onarpenik.",
+      "errors": [],
+      "metadata": {
+        "n_errors": 0
+      }
+    },
+    {
+      "id": "clean_016",
+      "category": "clean",
+      "source": "wikipedia",
+      "input": "Euskarak inguruko hizkuntzekin milaka urteko harremana izan du.",
+      "expected": "Euskarak inguruko hizkuntzekin milaka urteko harremana izan du.",
+      "errors": [],
+      "metadata": {
+        "n_errors": 0
+      }
+    },
+    {
+      "id": "clean_017",
+      "category": "clean",
+      "source": "wikipedia",
+      "input": "Latindar alfabetoaren bidez idazten da.",
+      "expected": "Latindar alfabetoaren bidez idazten da.",
+      "errors": [],
+      "metadata": {
+        "n_errors": 0
+      }
+    },
+    {
+      "id": "clean_018",
+      "category": "clean",
+      "source": "wikipedia",
+      "input": "Frankismoaren garaian (1936–1977) euskarak jazarpen arrotza pairatu zuen eta ia desagertu zen, baina berriro ere indartu egin da 1960ko hamarkadaz geroztik.",
+      "expected": "Frankismoaren garaian (1936–1977) euskarak jazarpen arrotza pairatu zuen eta ia desagertu zen, baina berriro ere indartu egin da 1960ko hamarkadaz geroztik.",
+      "errors": [],
+      "metadata": {
+        "n_errors": 0
+      }
+    },
+    {
+      "id": "clean_019",
+      "category": "clean",
+      "source": "wikipedia",
+      "input": "Gernikako Estatutuak euskara Euskal Autonomia Erkidegoko berezko hizkuntza izendatu zuen eta gaztelaniarekin batera ofizial egin zuen Araba, Bizkai eta Gipuzkoan.",
+      "expected": "Gernikako Estatutuak euskara Euskal Autonomia Erkidegoko berezko hizkuntza izendatu zuen eta gaztelaniarekin batera ofizial egin zuen Araba, Bizkai eta Gipuzkoan.",
+      "errors": [],
+      "metadata": {
+        "n_errors": 0
+      }
+    },
+    {
+      "id": "clean_020",
+      "category": "clean",
+      "source": "wikipedia",
+      "input": "Euskara Araba, Bizkaia, Gipuzkoa, Lapurdi, Nafarroa eta Zuberoa herrialdeetan hitz egiten da.",
+      "expected": "Euskara Araba, Bizkaia, Gipuzkoa, Lapurdi, Nafarroa eta Zuberoa herrialdeetan hitz egiten da.",
+      "errors": [],
+      "metadata": {
+        "n_errors": 0
+      }
+    },
+    {
+      "id": "realword_001",
+      "category": "realword",
+      "source": "elhuyar",
+      "input": "Baliabide asko dituen eskola da Londresko hori, ordea, eta orrek hainbat proiektu garatzeko aukera eskaini zidan.",
+      "expected": "Baliabide asko dituen eskola da Londresko hori, ordea, eta horrek hainbat proiektu garatzeko aukera eskaini zidan.",
+      "errors": [
+        {
+          "type": "realword",
+          "original": "orrek",
+          "correction": "horrek",
+          "description": "Real-word confusion: ergative 'that' → 'orrek'"
+        }
+      ],
+      "metadata": {
+        "confusable_pair": "horrek↔orrek",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "realword_002",
+      "category": "realword",
+      "source": "elhuyar",
+      "input": "Garrantzia galanta dauka, baina orrek ez du esan nahi pelikula bat ikusten dugun bakoitzean musika zeinen ederra den esaten atera behar dugunik zinematik.",
+      "expected": "Garrantzia galanta dauka, baina horrek ez du esan nahi pelikula bat ikusten dugun bakoitzean musika zeinen ederra den esaten atera behar dugunik zinematik.",
+      "errors": [
+        {
+          "type": "realword",
+          "original": "orrek",
+          "correction": "horrek",
+          "description": "Real-word confusion: ergative 'that' → 'orrek'"
+        }
+      ],
+      "metadata": {
+        "confusable_pair": "horrek↔orrek",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "realword_003",
+      "category": "realword",
+      "source": "elhuyar",
+      "input": "Bizitzako pasarteak eta emozioak erregalatzen dizkizutenean, beti iristen du eta hori beti geratzen zaizu.Une deserosorik buruan?",
+      "expected": "Bizitzako pasarteak eta emozioak erregalatzen dizkizutenean, beti iristen da eta hori beti geratzen zaizu.Une deserosorik buruan?",
+      "errors": [
+        {
+          "type": "realword",
+          "original": "du",
+          "correction": "da",
+          "description": "Real-word confusion: 'is' (3sg intransitive) → 'du' (3sg transitive 'has')"
+        }
+      ],
+      "metadata": {
+        "confusable_pair": "da↔du",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "realword_004",
+      "category": "realword",
+      "source": "elhuyar",
+      "input": "Oro har, lehen sektoretik bizi direnekin zuzenean itz egin beharrean, bulegoetatik eta hipotesietan oinarrituta egin direlako politikak eman da akatsa.",
+      "expected": "Oro har, lehen sektoretik bizi direnekin zuzenean hitz egin beharrean, bulegoetatik eta hipotesietan oinarrituta egin direlako politikak eman da akatsa.",
+      "errors": [
+        {
+          "type": "realword",
+          "original": "itz",
+          "correction": "hitz",
+          "description": "Real-word confusion: 'word' → 'itz'"
+        }
+      ],
+      "metadata": {
+        "confusable_pair": "hitz↔itz",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "realword_005",
+      "category": "realword",
+      "source": "elhuyar",
+      "input": "Lehen biderra du horrelako zeozer egiten dudana, eta ez dakit zelan irtengo den.",
+      "expected": "Lehen biderra da horrelako zeozer egiten dudana, eta ez dakit zelan irtengo den.",
+      "errors": [
+        {
+          "type": "realword",
+          "original": "du",
+          "correction": "da",
+          "description": "Real-word confusion: 'is' (3sg intransitive) → 'du' (3sg transitive 'has')"
+        }
+      ],
+      "metadata": {
+        "confusable_pair": "da↔du",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "realword_006",
+      "category": "realword",
+      "source": "elhuyar",
+      "input": "Hark du harreman handiena ardoarekin, eta ark izan du ikerketa egiteko ideia ere.",
+      "expected": "Hark du harreman handiena ardoarekin, eta hark izan du ikerketa egiteko ideia ere.",
+      "errors": [
+        {
+          "type": "realword",
+          "original": "ark",
+          "correction": "hark",
+          "description": "Real-word confusion: ergative 'that one' → 'ark'"
+        }
+      ],
+      "metadata": {
+        "confusable_pair": "hark↔ark",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "realword_007",
+      "category": "realword",
+      "source": "elhuyar",
+      "input": "Confebaskek ez dio bake sozial horri erreparatu beren hitzezko eskaintzan, sektore arteko ituna egiteko, Bizkaiko merkataritzan lortutako esparru hitzarmena aipatu duelako eredu gisa.",
+      "expected": "Confebaskek ez dio bake sozial horri erreparatu bere hitzezko eskaintzan, sektore arteko ituna egiteko, Bizkaiko merkataritzan lortutako esparru hitzarmena aipatu duelako eredu gisa.",
+      "errors": [
+        {
+          "type": "realword",
+          "original": "beren",
+          "correction": "bere",
+          "description": "Real-word confusion: singular possessor 'his/her' → plural 'their'"
+        }
+      ],
+      "metadata": {
+        "confusable_pair": "bere↔beren",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "realword_008",
+      "category": "realword",
+      "source": "elhuyar",
+      "input": "PSOEk beren burua aurrerakoi eta ezkerzaletzat daukala kontuan hartuta, onartezina da Espainiako Gobernuaren jarrera.",
+      "expected": "PSOEk bere burua aurrerakoi eta ezkerzaletzat daukala kontuan hartuta, onartezina da Espainiako Gobernuaren jarrera.",
+      "errors": [
+        {
+          "type": "realword",
+          "original": "beren",
+          "correction": "bere",
+          "description": "Real-word confusion: singular possessor 'his/her' → plural 'their'"
+        }
+      ],
+      "metadata": {
+        "confusable_pair": "bere↔beren",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "realword_009",
+      "category": "realword",
+      "source": "elhuyar",
+      "input": "Eta aiek atera ahal izateko su egiteari utzi ziotela jakinarazi zuen Puleedevanek.",
+      "expected": "Eta haiek atera ahal izateko su egiteari utzi ziotela jakinarazi zuen Puleedevanek.",
+      "errors": [
+        {
+          "type": "realword",
+          "original": "aiek",
+          "correction": "haiek",
+          "description": "Real-word confusion: plural demonstrative 'those' → 'aiek'"
+        }
+      ],
+      "metadata": {
+        "confusable_pair": "haiek↔aiek",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "realword_010",
+      "category": "realword",
+      "source": "elhuyar",
+      "input": "Denbora aurrera doala gogoratu zuen, eta aurretik akordiorik ez badago, erreferenduma egin egingo dela esan zuen, konbentzimendu osoz itz egin eta segurtasuna adierazi nahi duenaren tonuan.",
+      "expected": "Denbora aurrera doala gogoratu zuen, eta aurretik akordiorik ez badago, erreferenduma egin egingo dela esan zuen, konbentzimendu osoz hitz egin eta segurtasuna adierazi nahi duenaren tonuan.",
+      "errors": [
+        {
+          "type": "realword",
+          "original": "itz",
+          "correction": "hitz",
+          "description": "Real-word confusion: 'word' → 'itz'"
+        }
+      ],
+      "metadata": {
+        "confusable_pair": "hitz↔itz",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "realword_011",
+      "category": "realword",
+      "source": "elhuyar",
+      "input": "1676an, berriz, Willughbyren Ornithologia libri tres tratatua kaleratu zuen -lau urte lehenago hil zen ura-, ornitologia modernoaren sortzezko lana.",
+      "expected": "1676an, berriz, Willughbyren Ornithologia libri tres tratatua kaleratu zuen -lau urte lehenago hil zen hura-, ornitologia modernoaren sortzezko lana.",
+      "errors": [
+        {
+          "type": "realword",
+          "original": "ura",
+          "correction": "hura",
+          "description": "Real-word confusion: demonstrative 'that one' → 'ura' (the water)"
+        }
+      ],
+      "metadata": {
+        "confusable_pair": "hura↔ura",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "realword_012",
+      "category": "realword",
+      "source": "elhuyar",
+      "input": "AEBen mesedetan hartu zuen erabakia, ark ez duelako hitzarmen hori sinatu.",
+      "expected": "AEBen mesedetan hartu zuen erabakia, hark ez duelako hitzarmen hori sinatu.",
+      "errors": [
+        {
+          "type": "realword",
+          "original": "ark",
+          "correction": "hark",
+          "description": "Real-word confusion: ergative 'that one' → 'ark'"
+        }
+      ],
+      "metadata": {
+        "confusable_pair": "hark↔ark",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "realword_013",
+      "category": "realword",
+      "source": "elhuyar",
+      "input": "Federatu gabe dagoenari tramitea egingo zaio, ala nahi badu.",
+      "expected": "Federatu gabe dagoenari tramitea egingo zaio, hala nahi badu.",
+      "errors": [
+        {
+          "type": "realword",
+          "original": "ala",
+          "correction": "hala",
+          "description": "Real-word confusion: 'thus/so' → 'ala' (or/either in questions)"
+        }
+      ],
+      "metadata": {
+        "confusable_pair": "hala↔ala",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "realword_014",
+      "category": "realword",
+      "source": "elhuyar",
+      "input": "Espezie berri onek denboraren hutsune bat betetzen du.",
+      "expected": "Espezie berri honek denboraren hutsune bat betetzen du.",
+      "errors": [
+        {
+          "type": "realword",
+          "original": "onek",
+          "correction": "honek",
+          "description": "Real-word confusion: ergative 'this' → 'onek'"
+        }
+      ],
+      "metadata": {
+        "confusable_pair": "honek↔onek",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "realword_015",
+      "category": "realword",
+      "source": "elhuyar",
+      "input": "Nahiz eta Greziako mitologian bakanteek Orfeo musikaria txiki-txiki egin, Monteverdiren bertsioan, aldiz, Apolo aitak seme maitemindua -eta artista- zerura eramango du, ots, artegintzaren egoitzara.",
+      "expected": "Nahiz eta Greziako mitologian bakanteek Orfeo musikaria txiki-txiki egin, Monteverdiren bertsioan, aldiz, Apolo aitak seme maitemindua -eta artista- zerura eramango du, hots, artegintzaren egoitzara.",
+      "errors": [
+        {
+          "type": "realword",
+          "original": "ots",
+          "correction": "hots",
+          "description": "Real-word confusion: 'sound/voice' → 'ots' (echo)"
+        }
+      ],
+      "metadata": {
+        "confusable_pair": "hots↔ots",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "realword_016",
+      "category": "realword",
+      "source": "elhuyar",
+      "input": "1707ko urtarrilaren 16an, bat-egite ituna onartu zuen Eskoziako Parlamentuak, eta Parlamentua bera deuseztatu; ala ere, herritarrek ez zuten ondo ikusten Ingalaterrarekin bat egitea.",
+      "expected": "1707ko urtarrilaren 16an, bat-egite ituna onartu zuen Eskoziako Parlamentuak, eta Parlamentua bera deuseztatu; hala ere, herritarrek ez zuten ondo ikusten Ingalaterrarekin bat egitea.",
+      "errors": [
+        {
+          "type": "realword",
+          "original": "ala",
+          "correction": "hala",
+          "description": "Real-word confusion: 'thus/so' → 'ala' (or/either in questions)"
+        }
+      ],
+      "metadata": {
+        "confusable_pair": "hala↔ala",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "realword_017",
+      "category": "realword",
+      "source": "elhuyar",
+      "input": "Koldo Zelestinok, berriz, proiektu onek duen garrantziaz ohartarazi zuen: \"Eusko Jaurlaritzak kaleratutako dekretuaren arabera, barruti bakoitzari lau telebista-kanal egokituko zaizkio.",
+      "expected": "Koldo Zelestinok, berriz, proiektu honek duen garrantziaz ohartarazi zuen: \"Eusko Jaurlaritzak kaleratutako dekretuaren arabera, barruti bakoitzari lau telebista-kanal egokituko zaizkio.",
+      "errors": [
+        {
+          "type": "realword",
+          "original": "onek",
+          "correction": "honek",
+          "description": "Real-word confusion: ergative 'this' → 'onek'"
+        }
+      ],
+      "metadata": {
+        "confusable_pair": "honek↔onek",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "realword_018",
+      "category": "realword",
+      "source": "elhuyar",
+      "input": "Xaharra eta konkorra zelako barre egiten zioten Bizargorriren seme-alabek, baina aiek ere aspertu eta bakea ematen zioten azkenean.",
+      "expected": "Xaharra eta konkorra zelako barre egiten zioten Bizargorriren seme-alabek, baina haiek ere aspertu eta bakea ematen zioten azkenean.",
+      "errors": [
+        {
+          "type": "realword",
+          "original": "aiek",
+          "correction": "haiek",
+          "description": "Real-word confusion: plural demonstrative 'those' → 'aiek'"
+        }
+      ],
+      "metadata": {
+        "confusable_pair": "haiek↔aiek",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "realword_019",
+      "category": "realword",
+      "source": "elhuyar",
+      "input": "Abuztua ate joka dugu, eta, zuetako askori bezala, tarte oni ere udako oporrak hartzeko garaia heldu zaio.",
+      "expected": "Abuztua ate joka dugu, eta, zuetako askori bezala, tarte honi ere udako oporrak hartzeko garaia heldu zaio.",
+      "errors": [
+        {
+          "type": "realword",
+          "original": "oni",
+          "correction": "honi",
+          "description": "Real-word confusion: dative 'to this' → 'oni'"
+        }
+      ],
+      "metadata": {
+        "confusable_pair": "honi↔oni",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "realword_020",
+      "category": "realword",
+      "source": "elhuyar",
+      "input": "Noriegaren abokatuek helegitea aurkeztu zuten Estatu Batuetako Auzitegi Gorenean, argudiatuz ura Frantziara eramateak Genevako Ituna urratuko lukeela.",
+      "expected": "Noriegaren abokatuek helegitea aurkeztu zuten Estatu Batuetako Auzitegi Gorenean, argudiatuz hura Frantziara eramateak Genevako Ituna urratuko lukeela.",
+      "errors": [
+        {
+          "type": "realword",
+          "original": "ura",
+          "correction": "hura",
+          "description": "Real-word confusion: demonstrative 'that one' → 'ura' (the water)"
+        }
+      ],
+      "metadata": {
+        "confusable_pair": "hura↔ura",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "multi_error_001",
+      "category": "multi_error",
+      "source": "wikipedia",
+      "input": "Frankismoaren garaian (1936–1977) euskarak jazarpen arrotza pairatuê zuen eta ia desagertu zen, baia berriro ere indartu egin da 1960ko hamarkadaz geroztik.",
+      "expected": "Frankismoaren garaian (1936–1977) euskarak jazarpen arrotza pairatu zuen eta ia desagertu zen, baina berriro ere indartu egin da 1960ko hamarkadaz geroztik.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "baia",
+          "correction": "baina",
+          "description": "Typo type: delete"
+        },
+        {
+          "type": "spelling",
+          "original": "pairatuê",
+          "correction": "pairatu",
+          "description": "Typo type: insert"
+        }
+      ],
+      "metadata": {
+        "n_errors": 2,
+        "typo_types": [
+          "delete",
+          "insert"
+        ]
+      }
+    },
+    {
+      "id": "multi_error_002",
+      "category": "multi_error",
+      "source": "wikipedia",
+      "input": "2016ko VI. Inkesta Soziolinguistikoaren arabera, euskararen eremu oson bizi ziren 16 urtetik ograko biztanleen % 28,4 euskalduna zen.",
+      "expected": "2016ko VI. Inkesta Soziolinguistikoaren arabera, euskararen eremu osoan bizi ziren 16 urtetik gorako biztanleen % 28,4 euskalduna zen.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "oson",
+          "correction": "osoan",
+          "description": "Typo type: delete"
+        },
+        {
+          "type": "spelling",
+          "original": "ograko",
+          "correction": "gorako",
+          "description": "Typo type: transpose"
+        }
+      ],
+      "metadata": {
+        "n_errors": 2,
+        "typo_types": [
+          "delete",
+          "transpose"
+        ]
+      }
+    },
+    {
+      "id": "multi_error_003",
+      "category": "multi_error",
+      "source": "wikipedia",
+      "input": "1968an Euskaltzanidiak Arantzazuko santutegian (Oñati, Gipuzkoa) egin zuen batzarrean abiatu zen battasun prozeustik sortu zen euskara batua.",
+      "expected": "1968an Euskaltzaindiak Arantzazuko santutegian (Oñati, Gipuzkoa) egin zuen batzarrean abiatu zen batasun prozesutik sortu zen euskara batua.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "battasun",
+          "correction": "batasun",
+          "description": "Typo type: double"
+        },
+        {
+          "type": "spelling",
+          "original": "prozeustik",
+          "correction": "prozesutik",
+          "description": "Typo type: transpose"
+        },
+        {
+          "type": "spelling",
+          "original": "Euskaltzanidiak",
+          "correction": "Euskaltzaindiak",
+          "description": "Typo type: transpose"
+        }
+      ],
+      "metadata": {
+        "n_errors": 3,
+        "typo_types": [
+          "double",
+          "transpose",
+          "transpose"
+        ]
+      }
+    },
+    {
+      "id": "multi_error_004",
+      "category": "multi_error",
+      "source": "wikipedia",
+      "input": "Euskararen ìdialektoei suskalkiak deritze.",
+      "expected": "Euskararen dialektoei euskalkiak deritze.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "suskalkiak",
+          "correction": "euskalkiak",
+          "description": "Typo type: adj_typo"
+        },
+        {
+          "type": "spelling",
+          "original": "ìdialektoei",
+          "correction": "dialektoei",
+          "description": "Typo type: insert"
+        }
+      ],
+      "metadata": {
+        "n_errors": 2,
+        "typo_types": [
+          "adj_typo",
+          "insert"
+        ]
+      }
+    },
+    {
+      "id": "multi_error_005",
+      "category": "multi_error",
+      "source": "wikipedia",
+      "input": "Aitzineuskararen sustrairik zaharrwnak, Erromatar Inperioaren aurrretikoak, Akitania ossoan eta Bizkaiko golkotik Andorraraino bitarteko Pirinioen bi aldeetan agertu dira.",
+      "expected": "Aitzineuskararen sustrairik zaharrenak, Erromatar Inperioaren aurretikoak, Akitania osoan eta Bizkaiko golkotik Andorraraino bitarteko Pirinioen bi aldeetan agertu dira.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "aurrretikoak",
+          "correction": "aurretikoak",
+          "description": "Typo type: double"
+        },
+        {
+          "type": "spelling",
+          "original": "zaharrwnak",
+          "correction": "zaharrenak",
+          "description": "Typo type: adj_typo"
+        },
+        {
+          "type": "spelling",
+          "original": "ossoan",
+          "correction": "osoan",
+          "description": "Typo type: double"
+        }
+      ],
+      "metadata": {
+        "n_errors": 3,
+        "typo_types": [
+          "double",
+          "adj_typo",
+          "double"
+        ]
+      }
+    },
+    {
+      "id": "multi_error_006",
+      "category": "multi_error",
+      "source": "wikipedia",
+      "input": "Gernikako Estatutuak euskraa Euskal Autonomia Erkidegoko berezko hizkuntza izendatu zuen eta gaztelaniarekin batera ofizial egin zuen Araba, Bizkai eta Giphzkoan.",
+      "expected": "Gernikako Estatutuak euskara Euskal Autonomia Erkidegoko berezko hizkuntza izendatu zuen eta gaztelaniarekin batera ofizial egin zuen Araba, Bizkai eta Gipuzkoan.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "Giphzkoan",
+          "correction": "Gipuzkoan",
+          "description": "Typo type: adj_typo"
+        },
+        {
+          "type": "spelling",
+          "original": "euskraa",
+          "correction": "euskara",
+          "description": "Typo type: transpose"
+        }
+      ],
+      "metadata": {
+        "n_errors": 2,
+        "typo_types": [
+          "adj_typo",
+          "transpose"
+        ]
+      }
+    },
+    {
+      "id": "multi_error_007",
+      "category": "multi_error",
+      "source": "wikipedia",
+      "input": "Euskara Arabsa, Bizkaia, Gipuzkoa, Lapurdi, Nafarroa eta Zuberoa herrialdeettan hitz exgiten da.",
+      "expected": "Euskara Araba, Bizkaia, Gipuzkoa, Lapurdi, Nafarroa eta Zuberoa herrialdeetan hitz egiten da.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "exgiten",
+          "correction": "egiten",
+          "description": "Typo type: insert"
+        },
+        {
+          "type": "spelling",
+          "original": "Arabsa",
+          "correction": "Araba",
+          "description": "Typo type: insert"
+        },
+        {
+          "type": "spelling",
+          "original": "herrialdeettan",
+          "correction": "herrialdeetan",
+          "description": "Typo type: double"
+        }
+      ],
+      "metadata": {
+        "n_errors": 3,
+        "typo_types": [
+          "insert",
+          "insert",
+          "double"
+        ]
+      }
+    },
+    {
+      "id": "multi_error_008",
+      "category": "multi_error",
+      "source": "wikipedia",
+      "input": "Euskara Euskl Yerriko hizkuntza da.",
+      "expected": "Euskara Euskal Herriko hizkuntza da.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "Euskl",
+          "correction": "Euskal",
+          "description": "Typo type: delete"
+        },
+        {
+          "type": "spelling",
+          "original": "Yerriko",
+          "correction": "Herriko",
+          "description": "Typo type: adj_typo"
+        }
+      ],
+      "metadata": {
+        "n_errors": 2,
+        "typo_types": [
+          "delete",
+          "adj_typo"
+        ]
+      }
+    },
+    {
+      "id": "multi_error_009",
+      "category": "multi_error",
+      "source": "wikipedia",
+      "input": "1729an, Manuell Larramendi jàesuitak El Imposible Vencido izeneko euskararen gramatika bat argitaratu zuen ASlamancan.",
+      "expected": "1729an, Manuel Larramendi jesuitak El Imposible Vencido izeneko euskararen gramatika bat argitaratu zuen Salamancan.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "Manuell",
+          "correction": "Manuel",
+          "description": "Typo type: double"
+        },
+        {
+          "type": "spelling",
+          "original": "ASlamancan",
+          "correction": "Salamancan",
+          "description": "Typo type: transpose"
+        },
+        {
+          "type": "spelling",
+          "original": "jàesuitak",
+          "correction": "jesuitak",
+          "description": "Typo type: insert"
+        }
+      ],
+      "metadata": {
+        "n_errors": 3,
+        "typo_types": [
+          "double",
+          "transpose",
+          "insert"
+        ]
+      }
+    },
+    {
+      "id": "multi_error_010",
+      "category": "multi_error",
+      "source": "wikipedia",
+      "input": "Olerki liburua da eta haren egilea, Bernart Etxepare, Nafarroa Behereko hherri tciki bateko apaiza izan zen.",
+      "expected": "Olerki liburua da eta haren egilea, Bernart Etxepare, Nafarroa Behereko herri txiki bateko apaiza izan zen.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "tciki",
+          "correction": "txiki",
+          "description": "Typo type: adj_typo"
+        },
+        {
+          "type": "spelling",
+          "original": "hherri",
+          "correction": "herri",
+          "description": "Typo type: double"
+        }
+      ],
+      "metadata": {
+        "n_errors": 2,
+        "typo_types": [
+          "adj_typo",
+          "double"
+        ]
+      }
+    },
+    {
+      "id": "multi_error_011",
+      "category": "multi_error",
+      "source": "wikipedia",
+      "input": "Gaur egun, Euskal Herrian berrta ere hizkuntza gutxitua da, lurralde horretan gaztelania eta frantsesa nagusitu baitira.",
+      "expected": "Gaur egun, Euskal Herrian bertan ere hizkuntza gutxitua da, lurralde horretan gaztelania eta frantsesa nagusitu baitira.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "berta",
+          "correction": "bertan",
+          "description": "Typo type: delete"
+        },
+        {
+          "type": "spelling",
+          "original": "berrta",
+          "correction": "berta",
+          "description": "Typo type: double"
+        }
+      ],
+      "metadata": {
+        "n_errors": 2,
+        "typo_types": [
+          "delete",
+          "double"
+        ]
+      }
+    },
+    {
+      "id": "multi_error_012",
+      "category": "multi_error",
+      "source": "wikipedia",
+      "input": "Euskarak inguruko hizkuntzekin milaka urteki harremaa izan du.",
+      "expected": "Euskarak inguruko hizkuntzekin milaka urteko harremana izan du.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "urteki",
+          "correction": "urteko",
+          "description": "Typo type: adj_typo"
+        },
+        {
+          "type": "spelling",
+          "original": "harremaa",
+          "correction": "harremana",
+          "description": "Typo type: delete"
+        }
+      ],
+      "metadata": {
+        "n_errors": 2,
+        "typo_types": [
+          "adj_typo",
+          "delete"
+        ]
+      }
+    },
+    {
+      "id": "multi_error_013",
+      "category": "multi_error",
+      "source": "wikipedia",
+      "input": "Morfologiari dagokionez, hizkuntza ergatbiokoa eta eranskaria da, indooeuropar hizkuntzak ez bezala.",
+      "expected": "Morfologiari dagokionez, hizkuntza ergatibokoa eta eranskaria da, indoeuropar hizkuntzak ez bezala.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "ergatbiokoa",
+          "correction": "ergatibokoa",
+          "description": "Typo type: transpose"
+        },
+        {
+          "type": "spelling",
+          "original": "indooeuropar",
+          "correction": "indoeuropar",
+          "description": "Typo type: double"
+        }
+      ],
+      "metadata": {
+        "n_errors": 2,
+        "typo_types": [
+          "transpose",
+          "double"
+        ]
+      }
+    },
+    {
+      "id": "multi_error_014",
+      "category": "multi_error",
+      "source": "wikipedia",
+      "input": "Erdi Aroan, gutxienez Errioxan eta Burgosko ipar-ekialdean ere hitzz egin zela ídokumentatuta xago.",
+      "expected": "Erdi Aroan, gutxienez Errioxan eta Burgosko ipar-ekialdean ere hitz egin zela dokumentatuta dago.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "xago",
+          "correction": "dago",
+          "description": "Typo type: adj_typo"
+        },
+        {
+          "type": "spelling",
+          "original": "hitzz",
+          "correction": "hitz",
+          "description": "Typo type: double"
+        },
+        {
+          "type": "spelling",
+          "original": "ídokumentatuta",
+          "correction": "dokumentatuta",
+          "description": "Typo type: insert"
+        }
+      ],
+      "metadata": {
+        "n_errors": 3,
+        "typo_types": [
+          "adj_typo",
+          "double",
+          "insert"
+        ]
+      }
+    },
+    {
+      "id": "multi_error_015",
+      "category": "multi_error",
+      "source": "wikipedia",
+      "input": "Aindar alfabetoaren bidez idazten da.",
+      "expected": "Latindar alfabetoaren bidez idazten da.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "Atindar",
+          "correction": "Latindar",
+          "description": "Typo type: delete"
+        },
+        {
+          "type": "spelling",
+          "original": "Aindar",
+          "correction": "Atindar",
+          "description": "Typo type: delete"
+        }
+      ],
+      "metadata": {
+        "n_errors": 2,
+        "typo_types": [
+          "delete",
+          "delete"
+        ]
+      }
+    },
+    {
+      "id": "paragraph_001",
+      "category": "paragraph",
+      "source": "wikipedia",
+      "input": "Euskara Euskal Herriko hizkuntza da. Hzikuntza bakartua da, ez baitzaio munduko hizkuntzen artean ahaidetasunik aurkitu.",
+      "expected": "Euskara Euskal Herriko hizkuntza da. Hizkuntza bakartua da, ez baitzaio munduko hizkuntzen artean ahaidetasunik aurkitu.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "Hzikuntza",
+          "correction": "Hizkuntza",
+          "description": "Typo type: transpose"
+        }
+      ],
+      "metadata": {
+        "n_sentences": 2,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "paragraph_002",
+      "category": "paragraph",
+      "source": "wikipedia",
+      "input": "Euskaraz mintzo direnei euskaldun deritze. Gaur egun, Euskal Herrian bertan ere hizkuntza gutxitua da, lurralde horrtean gaztelania eta frantsesa nagusitu baitira.",
+      "expected": "Euskaraz mintzo direnei euskaldun deritze. Gaur egun, Euskal Herrian bertan ere hizkuntza gutxitua da, lurralde horretan gaztelania eta frantsesa nagusitu baitira.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "horrtean",
+          "correction": "horretan",
+          "description": "Typo type: transpose"
+        }
+      ],
+      "metadata": {
+        "n_sentences": 2,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "paragraph_003",
+      "category": "paragraph",
+      "source": "wikipedia",
+      "input": "Morfologiari dagokionez, hizkuntza ergatibokoa eta eranskaria da, indoeuropar hizkuntzak ez bezala. Aitzineuskararen sustrairik zaharrenak, Erromatar Inperioaren aurretikoak, Akitania osoan eta Bizkaiko golkotik Andorraraino bitarteko Pirinioen bi aldeetan agertu dira. Erdi Arona, gutxienez Errioxan eta Burgosko ipar-ekialdean ere hitz egin zela dokumentatuta dago.",
+      "expected": "Morfologiari dagokionez, hizkuntza ergatibokoa eta eranskaria da, indoeuropar hizkuntzak ez bezala. Aitzineuskararen sustrairik zaharrenak, Erromatar Inperioaren aurretikoak, Akitania osoan eta Bizkaiko golkotik Andorraraino bitarteko Pirinioen bi aldeetan agertu dira. Erdi Aroan, gutxienez Errioxan eta Burgosko ipar-ekialdean ere hitz egin zela dokumentatuta dago.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "Arona",
+          "correction": "Aroan",
+          "description": "Typo type: transpose"
+        }
+      ],
+      "metadata": {
+        "n_sentences": 3,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "paragraph_004",
+      "category": "paragraph",
+      "source": "wikipedia",
+      "input": "Erdi Aroan, gutxienez Errioxan eta Burgosko ipar-ekialdean ere hitz egin zela dokumentatuta dago. Frankismoaren garaian (1936–1977) euskarak jazarpen arrotza pairatu zuen eta ia desagertu zen, baina berriro ere indartu egin da 1960ko hamarkadaz geroztik. Gernikako Estatutuqk euskara Euskal Autonomia Erkidegoko berezko hizkuntza izendatu zuen eta gaztelaniarekin batera ofizial egin zuen Araba, Bizkai eta Gipuzkoan.",
+      "expected": "Erdi Aroan, gutxienez Errioxan eta Burgosko ipar-ekialdean ere hitz egin zela dokumentatuta dago. Frankismoaren garaian (1936–1977) euskarak jazarpen arrotza pairatu zuen eta ia desagertu zen, baina berriro ere indartu egin da 1960ko hamarkadaz geroztik. Gernikako Estatutuak euskara Euskal Autonomia Erkidegoko berezko hizkuntza izendatu zuen eta gaztelaniarekin batera ofizial egin zuen Araba, Bizkai eta Gipuzkoan.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "Estatutuqk",
+          "correction": "Estatutuak",
+          "description": "Typo type: adj_typo"
+        }
+      ],
+      "metadata": {
+        "n_sentences": 3,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "paragraph_005",
+      "category": "paragraph",
+      "source": "wikipedia",
+      "input": "Gernikako Estatutuak euskara Euskal Autonomia Erkidegoko berezko hizkuntza izendatu zuen eta gaztelaniarekin batera ofizial egin zuen Arsba, Bizkai eta Gipuzkoan. Nafarroa Garaian, Euskararen Legearen eraginez, herrialdeko ipar-mendebaldean soilik da koofiziala.",
+      "expected": "Gernikako Estatutuak euskara Euskal Autonomia Erkidegoko berezko hizkuntza izendatu zuen eta gaztelaniarekin batera ofizial egin zuen Araba, Bizkai eta Gipuzkoan. Nafarroa Garaian, Euskararen Legearen eraginez, herrialdeko ipar-mendebaldean soilik da koofiziala.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "Arsba",
+          "correction": "Araba",
+          "description": "Typo type: adj_typo"
+        }
+      ],
+      "metadata": {
+        "n_sentences": 2,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "paragraph_006",
+      "category": "paragraph",
+      "source": "wikipedia",
+      "input": "ipar euskal herrian euskarak ez du aginpidea duten erakunde publikoen onarpenik 2016ko vi inkesta soziolinguistikoaren arabera euskararen eremu osoan bizi ziren 16 urtetik gorako biztanleen 28 4 euskalduna zen 1545ean argitaratu zen lehen liburua euskaraz linguae vasconum primitiae izenekoa",
+      "expected": "Ipar Euskal Herrian, euskarak ez du aginpidea duten erakunde publikoen onarpenik. 2016ko VI. Inkesta Soziolinguistikoaren arabera, euskararen eremu osoan bizi ziren 16 urtetik gorako biztanleen % 28,4 euskalduna zen. 1545ean argitaratu zen lehen liburua euskaraz, «Linguae Vasconum Primitiae» izenekoa.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "ipar euskal herrian euskarak ez du aginpidea duten erakunde publikoen onarpenik 2016ko vi inkesta soziolinguistikoaren arabera euskararen eremu osoan bizi ziren 16 urtetik gorako biztanleen 28 4 euskalduna zen 1545ean argitaratu zen lehen liburua euskaraz linguae vasconum primitiae izenekoa",
+          "correction": "Ipar Euskal Herrian, euskarak ez du aginpidea duten erakunde publikoen onarpenik. 2016ko VI. Inkesta Soziolinguistikoaren arabera, euskararen eremu osoan bizi ziren 16 urtetik gorako biztanleen % 28,4 euskalduna zen. 1545ean argitaratu zen lehen liburua euskaraz, «Linguae Vasconum Primitiae» izenekoa.",
+          "description": "Capitalize + add punctuation (paragraph-level)"
+        }
+      ],
+      "metadata": {
+        "n_sentences": 3,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "paragraph_007",
+      "category": "paragraph",
+      "source": "wikipedia",
+      "input": "1545ean argitaratu zen lehen liburua euskaraz linguae vasconum primitiae izenekoa olerki liburua da eta haren egilea bernart etxepare nafarroa behereko herri txiki bateko apaiza izan zen",
+      "expected": "1545ean argitaratu zen lehen liburua euskaraz, «Linguae Vasconum Primitiae» izenekoa. Olerki liburua da eta haren egilea, Bernart Etxepare, Nafarroa Behereko herri txiki bateko apaiza izan zen.",
+      "errors": [
+        {
+          "type": "cappunct",
+          "original": "1545ean argitaratu zen lehen liburua euskaraz linguae vasconum primitiae izenekoa olerki liburua da eta haren egilea bernart etxepare nafarroa behereko herri txiki bateko apaiza izan zen",
+          "correction": "1545ean argitaratu zen lehen liburua euskaraz, «Linguae Vasconum Primitiae» izenekoa. Olerki liburua da eta haren egilea, Bernart Etxepare, Nafarroa Behereko herri txiki bateko apaiza izan zen.",
+          "description": "Capitalize + add punctuation (paragraph-level)"
+        }
+      ],
+      "metadata": {
+        "n_sentences": 2,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "paragraph_008",
+      "category": "paragraph",
+      "source": "elhuyar-multi",
+      "input": "Militarren agintaldian presidente edo lehen ministro kargua izan ez bazuen ere, itzaletik agintzen zuelaren deitzen zitzaion diktadore ikusezina.",
+      "expected": "Militarren agintaldian presidente edo lehen ministro kargua izan ez bazuen ere, itzaletik agintzen zuelako deitzen zioten diktadore ikusezina.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "zuelaren",
+          "correction": "zuelako",
+          "description": "R4 R2"
+        }
+      ],
+      "metadata": {
+        "n_sentences": 1,
+        "error_types": "R4 R2",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "paragraph_009",
+      "category": "paragraph",
+      "source": "elhuyar-multi",
+      "input": "Ia 450 minutu daramatza golik sartu gabeGola sartzeko aukerak sortzea asko kostatzen du taldeari, eta dauzkanak ez dira baliatzen.",
+      "expected": "Ia 450 minutu daramatza golik sartu gabeGola sartzeko aukerak sortzea asko kostatzen zaio taldeari, eta dauzkanak ez ditu baliatzen.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "du",
+          "correction": "zaio",
+          "description": "R2: auxiliary verb disagreement (person/number)"
+        }
+      ],
+      "metadata": {
+        "n_sentences": 1,
+        "error_types": "R2",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "paragraph_010",
+      "category": "paragraph",
+      "source": "elhuyar-multi",
+      "input": "Gero, ohitura bihurtu zuen panpina erostea, eta pila ederra bildu zen.",
+      "expected": "Gero, ohitura bihurtu zitzaion panpinak erostea, eta pila ederra bildu zuen.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "zuen",
+          "correction": "zitzaion",
+          "description": "R2 R3"
+        }
+      ],
+      "metadata": {
+        "n_sentences": 1,
+        "error_types": "R2 R3",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "paragraph_011",
+      "category": "paragraph",
+      "source": "elhuyar-multi",
+      "input": "Adarrak eta hostoek Bortziriak irudikatzen da, herriak geografikoki modu horretan daudelaren kokatuak.",
+      "expected": "Adarrak eta hostoek Bortziriak irudikatzen dute, herriak geografikoki modu horretan daudelako kokatuak.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "da,",
+          "correction": "dute,",
+          "description": "R4 R2"
+        }
+      ],
+      "metadata": {
+        "n_sentences": 1,
+        "error_types": "R4 R2",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "paragraph_012",
+      "category": "paragraph",
+      "source": "elhuyar-multi",
+      "input": "Lehen bilkura Baigorriko (Nafarroa Beherea) Biltoki gelan egin zioten, garaiko auzapezak ez zielaren utzi herriko gela publikoa.",
+      "expected": "Lehen bilkura Baigorriko (Nafarroa Beherea) Biltoki gelan egin zuten, garaiko auzapezak ez zielako utzi herriko gela publikoa.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "zioten,",
+          "correction": "zuten,",
+          "description": "R4 R2"
+        }
+      ],
+      "metadata": {
+        "n_sentences": 1,
+        "error_types": "R4 R2",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "paragraph_013",
+      "category": "paragraph",
+      "source": "elhuyar-multi",
+      "input": "Ba, ez da uste Jamaikan bizi den jendeari asko axola zaiela Cuencako gizon batek zer egiten duen.",
+      "expected": "Ba, ez dut uste Jamaikan bizi den jendeari asko axola zaienik Cuencako gizon batek zer egiten duen.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "da",
+          "correction": "dut",
+          "description": "R4 R2"
+        }
+      ],
+      "metadata": {
+        "n_sentences": 1,
+        "error_types": "R4 R2",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "paragraph_014",
+      "category": "paragraph",
+      "source": "elhuyar-multi",
+      "input": "Litekeela du, bere ustez, apirilean bidaltzea soldaduak Afganistanera.",
+      "expected": "Litekeena da, bere ustez, apirilean bidaltzea soldaduak Afganistanera.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "Litekeela",
+          "correction": "Litekeena",
+          "description": "R4 R2"
+        }
+      ],
+      "metadata": {
+        "n_sentences": 1,
+        "error_types": "R4 R2",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "paragraph_015",
+      "category": "paragraph",
+      "source": "elhuyar-multi",
+      "input": "Dela dela Azokan hainbat bider egon nau bisitari zein parte-hartzaile.",
+      "expected": "Dena dela Azokan hainbat bider egon naiz bisitari zein parte-hartzaile.",
+      "errors": [
+        {
+          "type": "grammar",
+          "original": "Dela",
+          "correction": "Dena",
+          "description": "R4 R2"
+        }
+      ],
+      "metadata": {
+        "n_sentences": 1,
+        "error_types": "R4 R2",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "markdown_001",
+      "category": "markdown",
+      "source": "wikipedia",
+      "input": "- Erdi Aroan, gutxienez Errioxan eta Burgosko ipar-ekialdaen ere hitz egin zela dokumentatuta dago.",
+      "expected": "- Erdi Aroan, gutxienez Errioxan eta Burgosko ipar-ekialdean ere hitz egin zela dokumentatuta dago.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "ipar-ekialdaen",
+          "correction": "ipar-ekialdean",
+          "description": "Typo type: transpose (in markdown bullet)"
+        }
+      ],
+      "metadata": {
+        "markdown_type": "bullet",
+        "typo_type": "transpose",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "markdown_002",
+      "category": "markdown",
+      "source": "wikipedia",
+      "input": "**Euskarak **inguruko hizkuntzekin milaka urteko haremana izan du.",
+      "expected": "**Euskarak **inguruko hizkuntzekin milaka urteko harremana izan du.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "haremana",
+          "correction": "harremana",
+          "description": "Typo type: delete (in markdown bold-first-word)"
+        }
+      ],
+      "metadata": {
+        "markdown_type": "bold-first-word",
+        "typo_type": "delete",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "markdown_003",
+      "category": "markdown",
+      "source": "wikipedia",
+      "input": "> Euskara Araba, Bizkaia, Gipuzkoa, Lapurdi, Nadarroa eta Zuberoa herrialdeetan hitz egiten da.",
+      "expected": "> Euskara Araba, Bizkaia, Gipuzkoa, Lapurdi, Nafarroa eta Zuberoa herrialdeetan hitz egiten da.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "Nadarroa",
+          "correction": "Nafarroa",
+          "description": "Typo type: adj_typo (in markdown blockquote)"
+        }
+      ],
+      "metadata": {
+        "markdown_type": "blockquote",
+        "typo_type": "adj_typo",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "markdown_004",
+      "category": "markdown",
+      "source": "wikipedia",
+      "input": "> Morfologiari dagokionez, hizkuntza ergatibokoa eta eranskaria da, indoeuropar hizkuntzak ez bzala.",
+      "expected": "> Morfologiari dagokionez, hizkuntza ergatibokoa eta eranskaria da, indoeuropar hizkuntzak ez bezala.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "bzala",
+          "correction": "bezala",
+          "description": "Typo type: delete (in markdown blockquote)"
+        }
+      ],
+      "metadata": {
+        "markdown_type": "blockquote",
+        "typo_type": "delete",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "markdown_005",
+      "category": "markdown",
+      "source": "wikipedia",
+      "input": "- Gaur egun, EEuskal Herrian bertan ere hizkuntza gutxitua da, lurralde horretan gaztelania eta frantsesa nagusitu baitira.",
+      "expected": "- Gaur egun, Euskal Herrian bertan ere hizkuntza gutxitua da, lurralde horretan gaztelania eta frantsesa nagusitu baitira.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "EEuskal",
+          "correction": "Euskal",
+          "description": "Typo type: double (in markdown bullet)"
+        }
+      ],
+      "metadata": {
+        "markdown_type": "bullet",
+        "typo_type": "double",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "markdown_006",
+      "category": "markdown",
+      "source": "wikipedia",
+      "input": "# Euskara Euskal Herriko\n\nEuskara Euskal Herriko hizkuhtza da.",
+      "expected": "# Euskara Euskal Herriko\n\nEuskara Euskal Herriko hizkuntza da.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "hizkuhtza",
+          "correction": "hizkuntza",
+          "description": "Typo type: adj_typo (in markdown heading)"
+        }
+      ],
+      "metadata": {
+        "markdown_type": "heading",
+        "typo_type": "adj_typo",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "markdown_007",
+      "category": "markdown",
+      "source": "wikipedia",
+      "input": "1. Euskararen dialektoei euuskalkiak deritze.",
+      "expected": "1. Euskararen dialektoei euskalkiak deritze.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "euuskalkiak",
+          "correction": "euskalkiak",
+          "description": "Typo type: double (in markdown numbered)"
+        }
+      ],
+      "metadata": {
+        "markdown_type": "numbered",
+        "typo_type": "double",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "markdown_008",
+      "category": "markdown",
+      "source": "wikipedia",
+      "input": "**1729an, **Manuel Larramendi jesuitak El Imposjble Vencido izeneko euskararen gramatika bat argitaratu zuen Salamancan.",
+      "expected": "**1729an, **Manuel Larramendi jesuitak El Imposible Vencido izeneko euskararen gramatika bat argitaratu zuen Salamancan.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "Imposjble",
+          "correction": "Imposible",
+          "description": "Typo type: adj_typo (in markdown bold-first-word)"
+        }
+      ],
+      "metadata": {
+        "markdown_type": "bold-first-word",
+        "typo_type": "adj_typo",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "markdown_009",
+      "category": "markdown",
+      "source": "wikipedia",
+      "input": "> Gernikako Estatutuak euskara Euskal Autonomia Erkidegoko berezko hizkuntza izendatu zuen eta gaztelaniarekin batera ofizial egin zuen Araba, Bizkai eta Giuzkoan.",
+      "expected": "> Gernikako Estatutuak euskara Euskal Autonomia Erkidegoko berezko hizkuntza izendatu zuen eta gaztelaniarekin batera ofizial egin zuen Araba, Bizkai eta Gipuzkoan.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "Giuzkoan",
+          "correction": "Gipuzkoan",
+          "description": "Typo type: delete (in markdown blockquote)"
+        }
+      ],
+      "metadata": {
+        "markdown_type": "blockquote",
+        "typo_type": "delete",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "markdown_010",
+      "category": "markdown",
+      "source": "wikipedia",
+      "input": "- Aitzineuskararen sustrairik zahazrrenak, Erromatar Inperioaren aurretikoak, Akitania osoan eta Bizkaiko golkotik Andorraraino bitarteko Pirinioen bi aldeetan agertu dira.",
+      "expected": "- Aitzineuskararen sustrairik zaharrenak, Erromatar Inperioaren aurretikoak, Akitania osoan eta Bizkaiko golkotik Andorraraino bitarteko Pirinioen bi aldeetan agertu dira.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "zahazrrenak",
+          "correction": "zaharrenak",
+          "description": "Typo type: insert (in markdown bullet)"
+        }
+      ],
+      "metadata": {
+        "markdown_type": "bullet",
+        "typo_type": "insert",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "markdown_011",
+      "category": "markdown",
+      "source": "wikipedia",
+      "input": "# Frankismoaren garaian (1936–1977) euskarak\n\nFrankismoaren gariaan (1936–1977) euskarak jazarpen arrotza pairatu zuen eta ia desagertu zen, baina berriro ere indartu egin da 1960ko hamarkadaz geroztik.",
+      "expected": "# Frankismoaren garaian (1936–1977) euskarak\n\nFrankismoaren garaian (1936–1977) euskarak jazarpen arrotza pairatu zuen eta ia desagertu zen, baina berriro ere indartu egin da 1960ko hamarkadaz geroztik.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "gariaan",
+          "correction": "garaian",
+          "description": "Typo type: transpose (in markdown heading)"
+        }
+      ],
+      "metadata": {
+        "markdown_type": "heading",
+        "typo_type": "transpose",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "markdown_012",
+      "category": "markdown",
+      "source": "wikipedia",
+      "input": "**Euskaraz **mintzo direnei euskaldun derittze.",
+      "expected": "**Euskaraz **mintzo direnei euskaldun deritze.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "derittze",
+          "correction": "deritze",
+          "description": "Typo type: double (in markdown bold-first-word)"
+        }
+      ],
+      "metadata": {
+        "markdown_type": "bold-first-word",
+        "typo_type": "double",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "markdown_013",
+      "category": "markdown",
+      "source": "wikipedia",
+      "input": "- Ipar Euskal Herrian, euskarak ez du aginpidea duten erakunde publikoen onarppenik.",
+      "expected": "- Ipar Euskal Herrian, euskarak ez du aginpidea duten erakunde publikoen onarpenik.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "onarppenik",
+          "correction": "onarpenik",
+          "description": "Typo type: insert (in markdown bullet)"
+        }
+      ],
+      "metadata": {
+        "markdown_type": "bullet",
+        "typo_type": "insert",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "markdown_014",
+      "category": "markdown",
+      "source": "wikipedia",
+      "input": "# Latindar alfabetoaren bidez\n\nLatindar alfabetoaren bidez iadazten da.",
+      "expected": "# Latindar alfabetoaren bidez\n\nLatindar alfabetoaren bidez idazten da.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "iadazten",
+          "correction": "idazten",
+          "description": "Typo type: insert (in markdown heading)"
+        }
+      ],
+      "metadata": {
+        "markdown_type": "heading",
+        "typo_type": "insert",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "markdown_015",
+      "category": "markdown",
+      "source": "wikipedia",
+      "input": "- 1968an Euskaltzaindiak Aarntzazuko santutegian (Oñati, Gipuzkoa) egin zuen batzarrean abiatu zen batasun prozesutik sortu zen euskara batua.",
+      "expected": "- 1968an Euskaltzaindiak Arantzazuko santutegian (Oñati, Gipuzkoa) egin zuen batzarrean abiatu zen batasun prozesutik sortu zen euskara batua.",
+      "errors": [
+        {
+          "type": "spelling",
+          "original": "Aarntzazuko",
+          "correction": "Arantzazuko",
+          "description": "Typo type: transpose (in markdown bullet)"
+        }
+      ],
+      "metadata": {
+        "markdown_type": "bullet",
+        "typo_type": "transpose",
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "missing_extra_001",
+      "category": "missing_extra",
+      "source": "wikipedia",
+      "input": "Hizkuntza bakartua ez baitzaio munduko hizkuntzen artean ahaidetasunik aurkitu.",
+      "expected": "Hizkuntza bakartua da, ez baitzaio munduko hizkuntzen artean ahaidetasunik aurkitu.",
+      "errors": [
+        {
+          "type": "missing_word",
+          "original": "(missing)",
+          "correction": "da,",
+          "description": "Missing word: 'da,' was deleted"
+        }
+      ],
+      "metadata": {
+        "sub_type": "missing_word",
+        "deleted_word": "da,",
+        "position": 2,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "missing_extra_002",
+      "category": "missing_extra",
+      "source": "wikipedia",
+      "input": "Morfologiari dagokionez, hizkuntza ergatibokoa eta eranskaria da, da, indoeuropar hizkuntzak ez bezala.",
+      "expected": "Morfologiari dagokionez, hizkuntza ergatibokoa eta eranskaria da, indoeuropar hizkuntzak ez bezala.",
+      "errors": [
+        {
+          "type": "extra_word",
+          "original": "da, da,",
+          "correction": "da,",
+          "description": "Duplicated word: 'da,'"
+        }
+      ],
+      "metadata": {
+        "sub_type": "extra_word",
+        "duplicated_word": "da,",
+        "position": 6,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "missing_extra_003",
+      "category": "missing_extra",
+      "source": "wikipedia",
+      "input": "Erdi Aroan, gutxienez Errioxan eta Burgosko ipar-ekialdean ere hitz hitz egin zela dokumentatuta dago.",
+      "expected": "Erdi Aroan, gutxienez Errioxan eta Burgosko ipar-ekialdean ere hitz egin zela dokumentatuta dago.",
+      "errors": [
+        {
+          "type": "extra_word",
+          "original": "hitz hitz",
+          "correction": "hitz",
+          "description": "Duplicated word: 'hitz'"
+        }
+      ],
+      "metadata": {
+        "sub_type": "extra_word",
+        "duplicated_word": "hitz",
+        "position": 8,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "missing_extra_004",
+      "category": "missing_extra",
+      "source": "wikipedia",
+      "input": "Ipar Euskal Herrian, euskarak ez du du aginpidea duten erakunde publikoen onarpenik.",
+      "expected": "Ipar Euskal Herrian, euskarak ez du aginpidea duten erakunde publikoen onarpenik.",
+      "errors": [
+        {
+          "type": "extra_word",
+          "original": "du du",
+          "correction": "du",
+          "description": "Duplicated word: 'du'"
+        }
+      ],
+      "metadata": {
+        "sub_type": "extra_word",
+        "duplicated_word": "du",
+        "position": 5,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "missing_extra_005",
+      "category": "missing_extra",
+      "source": "wikipedia",
+      "input": "Euskara Araba, Bizkaia, Gipuzkoa, Lapurdi, Nafarroa eta Zuberoa herrialdeetan hitz egiten",
+      "expected": "Euskara Araba, Bizkaia, Gipuzkoa, Lapurdi, Nafarroa eta Zuberoa herrialdeetan hitz egiten da.",
+      "errors": [
+        {
+          "type": "missing_word",
+          "original": "(missing)",
+          "correction": "da.",
+          "description": "Missing word: 'da.' was deleted"
+        }
+      ],
+      "metadata": {
+        "sub_type": "missing_word",
+        "deleted_word": "da.",
+        "position": 11,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "missing_extra_006",
+      "category": "missing_extra",
+      "source": "wikipedia",
+      "input": "Nafarroa Garaian, Euskararen Legearen eraginez, herrialdeko ipar-mendebaldean ipar-mendebaldean soilik da koofiziala.",
+      "expected": "Nafarroa Garaian, Euskararen Legearen eraginez, herrialdeko ipar-mendebaldean soilik da koofiziala.",
+      "errors": [
+        {
+          "type": "extra_word",
+          "original": "ipar-mendebaldean ipar-mendebaldean",
+          "correction": "ipar-mendebaldean",
+          "description": "Duplicated word: 'ipar-mendebaldean'"
+        }
+      ],
+      "metadata": {
+        "sub_type": "extra_word",
+        "duplicated_word": "ipar-mendebaldean",
+        "position": 6,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "missing_extra_007",
+      "category": "missing_extra",
+      "source": "wikipedia",
+      "input": "Frankismoaren garaian (1936–1977) euskarak jazarpen arrotza pairatu zuen eta ia desagertu zen, baina berriro ere ere indartu egin da 1960ko hamarkadaz geroztik.",
+      "expected": "Frankismoaren garaian (1936–1977) euskarak jazarpen arrotza pairatu zuen eta ia desagertu zen, baina berriro ere indartu egin da 1960ko hamarkadaz geroztik.",
+      "errors": [
+        {
+          "type": "extra_word",
+          "original": "ere ere",
+          "correction": "ere",
+          "description": "Duplicated word: 'ere'"
+        }
+      ],
+      "metadata": {
+        "sub_type": "extra_word",
+        "duplicated_word": "ere",
+        "position": 14,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "missing_extra_008",
+      "category": "missing_extra",
+      "source": "wikipedia",
+      "input": "2016ko VI. Inkesta Soziolinguistikoaren arabera, euskararen eremu osoan bizi ziren 16 urtetik gorako biztanleen % 28,4 euskalduna zen. zen.",
+      "expected": "2016ko VI. Inkesta Soziolinguistikoaren arabera, euskararen eremu osoan bizi ziren 16 urtetik gorako biztanleen % 28,4 euskalduna zen.",
+      "errors": [
+        {
+          "type": "extra_word",
+          "original": "zen. zen.",
+          "correction": "zen.",
+          "description": "Duplicated word: 'zen.'"
+        }
+      ],
+      "metadata": {
+        "sub_type": "extra_word",
+        "duplicated_word": "zen.",
+        "position": 17,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "missing_extra_009",
+      "category": "missing_extra",
+      "source": "wikipedia",
+      "input": "Gaur egun, Euskal Herrian bertan ere hizkuntza gutxitua lurralde horretan gaztelania eta frantsesa nagusitu baitira.",
+      "expected": "Gaur egun, Euskal Herrian bertan ere hizkuntza gutxitua da, lurralde horretan gaztelania eta frantsesa nagusitu baitira.",
+      "errors": [
+        {
+          "type": "missing_word",
+          "original": "(missing)",
+          "correction": "da,",
+          "description": "Missing word: 'da,' was deleted"
+        }
+      ],
+      "metadata": {
+        "sub_type": "missing_word",
+        "deleted_word": "da,",
+        "position": 8,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "missing_extra_010",
+      "category": "missing_extra",
+      "source": "wikipedia",
+      "input": "1729an, Manuel Larramendi Larramendi jesuitak El Imposible Vencido izeneko euskararen gramatika bat argitaratu zuen Salamancan.",
+      "expected": "1729an, Manuel Larramendi jesuitak El Imposible Vencido izeneko euskararen gramatika bat argitaratu zuen Salamancan.",
+      "errors": [
+        {
+          "type": "extra_word",
+          "original": "Larramendi Larramendi",
+          "correction": "Larramendi",
+          "description": "Duplicated word: 'Larramendi'"
+        }
+      ],
+      "metadata": {
+        "sub_type": "extra_word",
+        "duplicated_word": "Larramendi",
+        "position": 2,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "missing_extra_011",
+      "category": "missing_extra",
+      "source": "wikipedia",
+      "input": "Aitzineuskararen sustrairik zaharrenak, Erromatar Inperioaren aurretikoak, Akitania osoan osoan eta Bizkaiko golkotik Andorraraino bitarteko Pirinioen bi aldeetan agertu dira.",
+      "expected": "Aitzineuskararen sustrairik zaharrenak, Erromatar Inperioaren aurretikoak, Akitania osoan eta Bizkaiko golkotik Andorraraino bitarteko Pirinioen bi aldeetan agertu dira.",
+      "errors": [
+        {
+          "type": "extra_word",
+          "original": "osoan osoan",
+          "correction": "osoan",
+          "description": "Duplicated word: 'osoan'"
+        }
+      ],
+      "metadata": {
+        "sub_type": "extra_word",
+        "duplicated_word": "osoan",
+        "position": 7,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "missing_extra_012",
+      "category": "missing_extra",
+      "source": "wikipedia",
+      "input": "Euskarak inguruko hizkuntzekin milaka urteko harremana izan",
+      "expected": "Euskarak inguruko hizkuntzekin milaka urteko harremana izan du.",
+      "errors": [
+        {
+          "type": "missing_word",
+          "original": "(missing)",
+          "correction": "du.",
+          "description": "Missing word: 'du.' was deleted"
+        }
+      ],
+      "metadata": {
+        "sub_type": "missing_word",
+        "deleted_word": "du.",
+        "position": 7,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "missing_extra_013",
+      "category": "missing_extra",
+      "source": "wikipedia",
+      "input": "Olerki liburua da eta haren egilea, Bernart Etxepare, Nafarroa Behereko Behereko herri txiki bateko apaiza izan zen.",
+      "expected": "Olerki liburua da eta haren egilea, Bernart Etxepare, Nafarroa Behereko herri txiki bateko apaiza izan zen.",
+      "errors": [
+        {
+          "type": "extra_word",
+          "original": "Behereko Behereko",
+          "correction": "Behereko",
+          "description": "Duplicated word: 'Behereko'"
+        }
+      ],
+      "metadata": {
+        "sub_type": "extra_word",
+        "duplicated_word": "Behereko",
+        "position": 9,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "missing_extra_014",
+      "category": "missing_extra",
+      "source": "wikipedia",
+      "input": "Gernikako Estatutuak euskara Euskal Autonomia Erkidegoko berezko hizkuntza izendatu zuen eta gaztelaniarekin batera batera ofizial egin zuen Araba, Bizkai eta Gipuzkoan.",
+      "expected": "Gernikako Estatutuak euskara Euskal Autonomia Erkidegoko berezko hizkuntza izendatu zuen eta gaztelaniarekin batera ofizial egin zuen Araba, Bizkai eta Gipuzkoan.",
+      "errors": [
+        {
+          "type": "extra_word",
+          "original": "batera batera",
+          "correction": "batera",
+          "description": "Duplicated word: 'batera'"
+        }
+      ],
+      "metadata": {
+        "sub_type": "extra_word",
+        "duplicated_word": "batera",
+        "position": 12,
+        "n_errors": 1
+      }
+    },
+    {
+      "id": "missing_extra_015",
+      "category": "missing_extra",
+      "source": "elhuyar",
+      "input": "El Correok jaso duenez, Ertzaintzaren operazio batean ihes egitea lortu zuen zuen orduko hartan.",
+      "expected": "El Correok jaso duenez, Ertzaintzaren operazio batean ihes egitea lortu zuen orduko hartan.",
+      "errors": [
+        {
+          "type": "extra_word",
+          "original": "zuen zuen",
+          "correction": "zuen",
+          "description": "Duplicated word: 'zuen'"
+        }
+      ],
+      "metadata": {
+        "sub_type": "extra_word",
+        "duplicated_word": "zuen",
+        "position": 10,
+        "n_errors": 1
+      }
+    }
+  ]
+}
