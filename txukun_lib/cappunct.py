@@ -77,16 +77,23 @@ class CapPunctModel:
     def failed(self) -> bool:
         return self._failed
 
-    def correct(self, text: str) -> str:
-        """Run cap-punct correction with sentence splitting + LCS constraint."""
+    def correct(self, text: str) -> tuple[str, float]:
+        """Run cap-punct correction with sentence splitting + LCS constraint.
+
+        Returns (corrected_text, avg_match_rate) where match_rate is the
+        average LCS alignment rate across segments (0.0–1.0). A low rate
+        indicates the model hallucinated (output bore little resemblance
+        to input).
+        """
         if self._failed:
-            return text
+            return text, 1.0
         self._load()
         if not self._pipeline:
-            return text
+            return text, 1.0
 
         segments = _split_into_segments(text)
         results = []
+        match_rates = []
         for seg in segments:
             if not seg["text"]:
                 results.append("")
@@ -94,10 +101,14 @@ class CapPunctModel:
             out = self._pipeline(seg["text"])
             corrected = out[0]["translation_text"] if out else seg["text"]
             corrected = clean_output(corrected)
-            results.append(_constrain_lcs(seg["text"], corrected) or seg["text"])
+            constrained, mr = _constrain_lcs(seg["text"], corrected)
+            results.append(constrained or seg["text"])
+            match_rates.append(mr)
 
         # Rejoin with original separators
-        return "".join(r + s for r, s in zip(results, [seg["sep"] for seg in segments])).rstrip()
+        rejoined = "".join(r + s for r, s in zip(results, [seg["sep"] for seg in segments])).rstrip()
+        avg_mr = sum(match_rates) / len(match_rates) if match_rates else 1.0
+        return rejoined, avg_mr
 
     def correct_simple(self, text: str) -> str:
         """Run cap-punct without sentence splitting (legacy single-call mode)."""
@@ -155,7 +166,7 @@ def _split_into_segments(text: str) -> list[dict]:
     return segments
 
 
-def _constrain_lcs(input_line: str, output_line: str) -> str:
+def _constrain_lcs(input_line: str, output_line: str) -> tuple[str, float]:
     """Constrain MarianMT output to case/punctuation-only changes.
 
     Uses LCS alignment on lowercased alphanumeric content to accept valid
@@ -163,6 +174,13 @@ def _constrain_lcs(input_line: str, output_line: str) -> str:
     substitutions. Unlike positional matching (which bails out on token
     count mismatch), LCS alignment preserves valid corrections even when
     the model hallucinates in the same segment.
+
+    Also rejects all-caps transformations (e.g. 'esker' → 'ESKER') which
+    are always hallucinations — the cap-punct model should only capitalize
+    the first letter, never convert entire words to uppercase.
+
+    Returns (constrained_text, match_rate) where match_rate is the fraction
+    of input tokens that survived LCS alignment (0.0–1.0).
     """
     input_tokens = input_line.split()
     output_tokens = output_line.split()
@@ -176,7 +194,7 @@ def _constrain_lcs(input_line: str, output_line: str) -> str:
     m = len(b_norm)
 
     if n == 0:
-        return input_line
+        return input_line, 1.0
 
     # LCS DP table
     dp = [[0] * (m + 1) for _ in range(n + 1)]
@@ -190,10 +208,18 @@ def _constrain_lcs(input_line: str, output_line: str) -> str:
     # Walk alignment: use output token where matched, keep input where unmatched,
     # skip hallucinated output tokens.
     result = []
+    matched = 0
     i = j = 0
     while i < n and j < m:
         if a_norm[i] == b_norm[j]:
-            result.append(output_tokens[j])
+            out_tok = output_tokens[j]
+            # Reject all-caps hallucinations: if output is all-uppercase
+            # (len > 1) but input was not, keep the input token's casing.
+            if (len(out_tok) > 1 and out_tok.isupper()
+                    and not input_tokens[i].isupper()):
+                out_tok = input_tokens[i]
+            result.append(out_tok)
+            matched += 1
             i += 1
             j += 1
         elif dp[i + 1][j] >= dp[i][j + 1]:
@@ -206,4 +232,5 @@ def _constrain_lcs(input_line: str, output_line: str) -> str:
         result.append(input_tokens[i])
         i += 1
 
-    return " ".join(result)
+    match_rate = matched / n if n > 0 else 1.0
+    return " ".join(result), match_rate

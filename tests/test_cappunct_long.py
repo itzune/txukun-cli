@@ -15,7 +15,7 @@ print(paragraph)
 print()
 
 # Test 1: pass the whole paragraph as-is (current behavior)
-result_whole = model.correct(paragraph)
+result_whole, _ = model.correct(paragraph)
 print("=== OUTPUT (whole paragraph, current behavior) ===")
 print(result_whole)
 print()
@@ -30,7 +30,7 @@ sentences = [
     "faktoria e i te beko irratian entzuten da",
     "informazio gehiago web horrian",
 ]
-results_split = [model.correct(s) for s in sentences]
+results_split = [model.correct(s)[0] for s in sentences]
 result_split = " ".join(results_split)
 print("=== OUTPUT (sentence-split) ===")
 for s, r in zip(sentences, results_split):

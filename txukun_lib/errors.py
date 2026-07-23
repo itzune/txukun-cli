@@ -24,6 +24,7 @@ class Error:
     category: str     # 'grammar' | 'spelling' | 'cappunct'
     title: str
     context: str = ""
+    confidence: float | None = None   # 0.0–1.0, model-specific
 
 
 _err_counter = 0

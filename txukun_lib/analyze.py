@@ -64,6 +64,7 @@ def analyze_text(
             category=e.category,
             title=e.title,
             context=e.context,
+            confidence=e.confidence,
         )
         for e in all_plain
     ]
@@ -90,9 +91,21 @@ def _detect_grammar(text: str, model) -> list[Error]:
         if not changed:
             return errors
 
+        # Get per-word P(INCORRECT) from detection head for confidence
+        try:
+            detections = model.detect(text)
+        except Exception:
+            detections = []
+
         for ch in diff_words(text, corrected):
             if ch.type != "replace":
                 continue
+            # Find detection confidence for this word
+            conf = None
+            for d in detections:
+                if d["start"] == ch.from_offset and d["end"] == ch.to_offset:
+                    conf = d["pIncorrect"]
+                    break
             errors.append(Error(
                 id=next_id(),
                 frm=ch.from_offset,
@@ -101,6 +114,7 @@ def _detect_grammar(text: str, model) -> list[Error]:
                 suggestion=ch.to_text,
                 category="grammar",
                 title=_grammar_title(ch.from_text, ch.to_text),
+                confidence=conf,
             ))
     except Exception as e:
         import sys
@@ -135,6 +149,10 @@ def _detect_spelling(text: str, checker) -> list[Error]:
                 continue
             if best.word == err.word:
                 continue
+            # BERTeus cosine similarity as confidence (normalize to 0–1)
+            conf = None
+            if best.bert_score is not None:
+                conf = (best.bert_score + 1.0) / 2.0
             errors.append(Error(
                 id=next_id(),
                 frm=err.start,
@@ -143,6 +161,7 @@ def _detect_spelling(text: str, checker) -> list[Error]:
                 suggestion=best.word,
                 category="spelling",
                 title="Ortografia",
+                confidence=conf,
             ))
     except Exception as e:
         import sys
@@ -161,7 +180,7 @@ def _detect_cappunct(text: str, model, heading_ranges: list[tuple[int, int]]) ->
             return errors
 
     try:
-        corrected = model.correct(text)
+        corrected, match_rate = model.correct(text)
         if not corrected or corrected == text:
             return errors
 
@@ -182,6 +201,7 @@ def _detect_cappunct(text: str, model, heading_ranges: list[tuple[int, int]]) ->
                 suggestion=ch.to_text,
                 category="cappunct",
                 title=_cappunct_title(ch.from_text, ch.to_text),
+                confidence=match_rate,
             ))
     except Exception as e:
         import sys

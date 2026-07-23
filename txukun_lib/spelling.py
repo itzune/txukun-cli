@@ -40,6 +40,7 @@ class Candidate:
     score: float
     freq: int = 0
     ed: int = 0
+    bert_score: float | None = None   # BERTeus cosine sim [-1, 1]
 
 
 @dataclass
@@ -335,6 +336,7 @@ class SpellChecker:
                 )
                 best_combined = -math.inf
                 for i in range(min(len(ranked), len(bert_scores))):
+                    ranked[i].bert_score = bert_scores[i]
                     combined = ranked[i].score + BERT_WEIGHT * bert_scores[i]
                     if combined > best_combined:
                         best_combined = combined

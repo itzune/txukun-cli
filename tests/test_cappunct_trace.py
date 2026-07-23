@@ -13,8 +13,9 @@ print(f"INPUT:  {text!r}")
 print()
 
 # Test 1: pass as-is
-result = model.correct(text)
+result, mr = model.correct(text)
 print(f"OUTPUT: {result!r}")
+print(f"MATCH RATE: {mr:.2f}")
 print()
 
 # Show what changed
