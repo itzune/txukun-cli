@@ -210,13 +210,19 @@ def _constrain_lcs(input_line: str, output_line: str) -> tuple[str, float]:
     result = []
     matched = 0
     i = j = 0
+    # Tentatively reject all-caps changes (could be hallucination), but
+    # remember them so we can restore if match rate is high (legit acronym).
+    pending_caps = []  # (result_index, output_tok)
     while i < n and j < m:
         if a_norm[i] == b_norm[j]:
             out_tok = output_tokens[j]
             # Reject all-caps hallucinations: if output is all-uppercase
-            # (len > 1) but input was not, keep the input token's casing.
+            # (len > 1) but input was not, tentatively keep input.
+            # But remember it — if match rate is high, it's a legit acronym
+            # (e.g. 'eebb' → 'EEBB') and should be accepted.
             if (len(out_tok) > 1 and out_tok.isupper()
                     and not input_tokens[i].isupper()):
+                pending_caps.append((len(result), out_tok))
                 out_tok = input_tokens[i]
             # Reject hallucinated repeated punctuation: if the output token
             # is significantly longer than the input, it's hallucination
@@ -238,4 +244,10 @@ def _constrain_lcs(input_line: str, output_line: str) -> tuple[str, float]:
         i += 1
 
     match_rate = matched / n if n > 0 else 1.0
+    # If match rate is high, the model is working well — restore legit
+    # acronym capitalizations (e.g. 'eebb' → 'EEBB').
+    # If match rate is low, the model is hallucinating — keep rejections.
+    if match_rate >= 0.7:
+        for idx, out_tok in pending_caps:
+            result[idx] = out_tok
     return " ".join(result), match_rate
