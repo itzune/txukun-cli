@@ -218,6 +218,11 @@ def _constrain_lcs(input_line: str, output_line: str) -> tuple[str, float]:
             if (len(out_tok) > 1 and out_tok.isupper()
                     and not input_tokens[i].isupper()):
                 out_tok = input_tokens[i]
+            # Reject hallucinated repeated punctuation: if the output token
+            # is significantly longer than the input, it's hallucination
+            # (e.g. 'nahi?' → 'nahi???...???'). Cap-punct only adds 1-2 chars.
+            if len(out_tok) > len(input_tokens[i]) + 3:
+                out_tok = input_tokens[i]
             result.append(out_tok)
             matched += 1
             i += 1
