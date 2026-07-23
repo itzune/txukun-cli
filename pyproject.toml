@@ -23,3 +23,8 @@ bench = [
 dev = [
     "pytest>=9.1.1",
 ]
+
+[tool.pytest.ini_options]
+# Only collect unit tests from tests/ — exclude benchmark/research scripts
+# in tests/gec-benchmark/ that download multi-GB models
+norecursedirs = ["tests/gec-benchmark"]
