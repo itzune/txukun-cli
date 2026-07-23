@@ -3,31 +3,27 @@
 [![Python](https://img.shields.io/badge/Python-3.12-blue)](https://python.org)
 [![uv](https://img.shields.io/badge/uv-package%20manager-blueviolet)](https://docs.astral.sh/uv/)
 
-Euskarazko testuen **maiuskulak, puntuazioa eta ortografia** zuzentzeko komando-lerroko tresna.
+Euskarazko testuen **maiuskulak, puntuazioa, ortografia eta gramatika** zuzentzeko komando-lerroko tresna.
 
-- 🧠 **Cap+Punct**: `itzune/txukun-cap-punct-eu` ONNX int8 eredu kuantizatua (~77 MB, `optimum[onnxruntime]`)
-- 🔍 **Ortografia**: Hunspell + Xuxen euskal hiztegia (142k sarrera + eratorpen-arau afixuak)
-- ⚡ **Lehen zuzenketa automatikoa**: akats ortografikoak automatikoki zuzentzen ditu
+Web bertsioaren ([txukun](https://github.com/itzune/txukun)) hiru eredu berberak erabiltzen ditu, ONNX Runtime bidez CPU-n exekutatzen direnak:
 
-> **Itzune** kolektiboaren proiektua — euskarazko AI tresna libre eta pribatuak.
+- 🧠 **Cap+Punct** — maiuskulak eta puntuazioa (MarianMT ONNX int8, ~77 MB)
+- 🔍 **Ortografia** — Hunspell + maiztasun berriro-ordenaketa + BERTeus ONNX berriro-ordenaketa neuronala (int4, 85 MB + 74 MB embeddings)
+- ✍️ **Gramatika** — GECToR akats gramatikalak zuzentzeko (RoBERTa-eus-base, int4 ONNX, ~85 MB)
+
+> **Itzune** kolektiboaren proiektua — euskarako AI tresna libre eta pribatuak.
 
 ---
 
 ## 🧠 Hiru eredu, hiru geruza
 
-Txukun ekosistemak **hiru eredu neuronal** erabiltzen ditu, euskal testuaren kalitatearen geruza desberdinak landuz. CLI honek lehenengo biak inplementatzen ditu; hirugarrena (GECToR) web bertsioan dago eskuragarri ([txukun](https://github.com/itzune/txukun)) eta CLI-ra ekartzeko planifikatuta dago:
+| # | Eredua | Rola | Tamaina |
+|---|---|---|---|
+| 1 | **[cap-punct-eu](https://huggingface.co/itzune/txukun-cap-punct-eu)** | Maiuskulak eta puntuazioa | ~77 MB (int8) |
+| 2 | **[berteus-onnx](https://huggingface.co/itzune/berteus-onnx)** | Ortografia: hautagaien berriro-ordenaketa neuronala | 85 MB (int4) + 74 MB |
+| 3 | **[gector-eus-onnx](https://huggingface.co/itzune/gector-eus-onnx)** | Gramatika zuzenketa + akats-detekzioa | ~85 MB (int4) |
 
-| # | Eredua | Rola | Tamaina | CLI | Web |
-|---|---|---|---|---|---|
-| 1 | **[cap-punct-eu](https://huggingface.co/itzune/txukun-cap-punct-eu)** | Maiuskulak eta puntuazioa | ~77 MB (int8) | ✅ | ✅ |
-| 2 | **[berteus-onnx](https://huggingface.co/itzune/berteus-onnx)** | Ortografia: hautagaien berriro-ordenaketa neuronala | 85 MB (int4) + 74 MB | ❌ (Hunspell bakarrik) | ✅ |
-| 3 | **[gector-eus-onnx](https://huggingface.co/itzune/gector-eus-onnx)** | Gramatika zuzenketa + akats-detekzioa | ~85 MB (int4) | ❌ | ✅ |
-
-- **1. Cap+Punct** — testu gordinari maiuskulak eta puntuazioa gehitzen dizkio (MarianMT, HiTZ Zentroak entrenatua)
-- **2. BERTeus** — akats ortografiko bat zuzentzean hainbat hautagai daudenean, testuinguruaren arabera hautagai onena aukeratzen du (BERT euskalduna, IXA NLP taldeak entrenatua)
-- **3. GECToR** — hitz errealen akats gramatikalak zuzentzen ditu (aditz-komunikazioa, kasua, denbora...); eta akats-detekzioa ere bai (hitza okerra den adierazten du konfiantza-puntuazio batekin). RoBERTa-eus-base gainean entrenatua, Elhuyar GEC corpusarekin.
-
-> CLI-an BERTeus eta GECToR integratzeko lana planifikatuta dago. Erabilgarri daude web bertsioan: [itzune.eus/txukun](https://itzune.eus/txukun/)
+Hiru ereduak **HF Hub-etik automatikoki deskargatzen dira** lehen exekuzioan, eta cache-atseginak dira hurrengo exekuzioetarako.
 
 ---
 
@@ -41,13 +37,7 @@ cd txukun-cli
 uv sync
 ```
 
-`uv sync` komandoak beharrezko Python mendekotasunak instalatuko ditu:
-- `optimum[onnxruntime]` — ONNX eredua exekutatzeko (CPU, ~77 MB deskarga)
-- `click` — CLI interfazerako
-
 ### 2. Instalatu Hunspell (ortografia zuzenketarako)
-
-Ortografia zuzenketa (`--spell`) erabiltzeko **Hunspell** behar da sisteman:
 
 ```bash
 # Debian / Ubuntu
@@ -60,75 +50,65 @@ brew install hunspell
 sudo pacman -S hunspell
 ```
 
-> **Oharra**: Hunspell gabe ere, `txukun.py`-k cap+punct zuzenketa egiten du normaltasunez. `--spell` aukera erabiltzean Hunspell ez badago eskuragarri, abisu bat erakutsiko du eta ortografia zuzenketarik gabe jarraituko du.
+> Hunspell gabe ere, cap-punct eta gramatika zuzenketa funtzionatzen dute. Ortografia zuzenketa desgaituta geratzen da.
 
 ---
 
 ## Erabilera
 
-### Oinarrizkoa
+### Zuzenketa (lehenetsia)
 
 ```bash
-uv run python txukun.py "zer moduz zaude"
-# → Zer moduz zaude?
+uv run python txukun.py "gaur goizean ama egin du bazkaria eta gero etsea garbitu dut"
+# → Gaur goizean amak egin du bazkaria eta gero etxea garbitu dut.
 ```
 
-### Ortografia zuzenketarekin
+### Detekzioa (JSON irteera)
 
 ```bash
-uv run python txukun.py --spell "gure etsea handia da"
-# → Gure etxea handia da.
+uv run python txukun.py -d "gaur goizean ama egin du bazkaria"
 ```
 
-### Fitxategitik irakurri
-
-```bash
-uv run python txukun.py --file input.txt --output zuzendua.txt
+```json
+[
+  { "id": "e1", "frm": 0, "to": 4, "original": "gaur", "suggestion": "Gaur",
+    "category": "cappunct", "title": "Maiuskula", "context": "" },
+  { "id": "e2", "frm": 13, "to": 16, "original": "ama", "suggestion": "amak",
+    "category": "grammar", "title": "Gramatika", "context": "gaur goizean" }
+]
 ```
 
-### Stdin bidez (pipe)
+### Ereduak aukeratu
 
 ```bash
+# Eredu jakin batzuk bakarrik
+uv run python txukun.py --enable spell --enable cappunct "text"
+
+# Eredu bat kendu
+uv run python txukun.py --disable grammar "text"
+```
+
+### Fitxategiak eta stdin
+
+```bash
+uv run python txukun.py -f input.txt -o output.txt
 cat testua.txt | uv run python txukun.py --stdin
-echo "kaixo mundua" | uv run python txukun.py --stdin
+echo "kaixo" | uv run python txukun.py --stdin -q
 ```
 
 ### Aukerak
 
 | Aukera | Deskribapena |
 |---|---|
-| `TEXT` | Zuzendu beharreko testua (lehen parametroa) |
-| `--file`, `-f PATH` | Fitxategitik irakurri |
+| `TEXT` | Zuzendu beharreko testua |
+| `-d`, `--detect` | JSON irteera akatsekin (posizioa, iradokizuna, kategoria) |
+| `-c`, `--correct` | Testu zuzendua irteera (lehenetsia) |
+| `--enable MODEL` | Eredu jakin batzuk bakarrik gaitu (`cap-punct`, `spell`, `grammar`) |
+| `--disable MODEL` | Eredu bat desgaitu |
+| `-f`, `--file PATH` | Fitxategitik irakurri |
 | `--stdin` | Stdin-etik irakurri |
-| `--output`, `-o PATH` | Irteera fitxategi batean gorde |
-| `--spell` | Ortografia zuzenketa gaitu (desgaituta lehenetsita) |
-| `--no-punct` | Maiuskula/puntuazio zuzenketa desgaitu |
-| `--quiet`, `-q` | Egoera mezuak isildu — irteera soilik |
-
-### Adibide praktikoak
-
-```bash
-# Ahots-ezagutzaren irteera garbitu
-uv run python txukun.py "euskal herrian euskaraz bizi nahi dugu"
-# → Euskal Herrian euskaraz bizi nahi dugu.
-
-# Ortografia bakarrik (eredua kargatu gabe)
-uv run python txukun.py --no-punct --spell "gure etsea handia da"
-# → gure etxea handia da
-
-# Fitxategi bat prozesatu emaitza gordez
-uv run python txukun.py -f raw_text.txt -o clean_text.txt
-
-# Irteera soila (isilik, script-etarako)
-uv run python txukun.py -q "zer moduz zaude"
-# → Zer moduz zaude?
-result=$(uv run python txukun.py -q "zer moduz zaude")
-
-# Hainbat fitxategi batera
-for f in *.txt; do
-  uv run python txukun.py -f "$f" -o "zuzendua/$f"
-done
-```
+| `-o`, `--output PATH` | Irteera fitxategian gorde |
+| `-q`, `--quiet` | Egoera mezuak isildu |
 
 ---
 
@@ -137,106 +117,82 @@ done
 ### Fluxua
 
 ```
---spell GABE:  [sarrera] → cap+punct ONNX → [irteera]
---spell EZARRI: [sarrera] → Hunspell zuzenketa → cap+punct ONNX → [irteera]
+[sarrera] → strip_markdown → 3 detektore (sekuentzialki) → merge → [irteera]
+                                │
+                                ├─ GECToR: gramatika zuzenketa → diffWords → replace changes
+                                ├─ Hunspell: akats ortografikoak → Tier1 (freq+ed) + Tier2 (BERTeus)
+                                └─ MarianMT: cap-punct → diffWords → case/punct-only changes
 ```
 
-> **Oharra**: Web bertsioak ([txukun](https://github.com/itzune/txukun)) hiru eredu erabiltzen ditu: BERTeus (ortografia berriro-ordenaketa) eta GECToR (gramatika zuzenketa + akats-detekzio heatmap) gehitzen dizkie cap+punct eta Hunspell-i. CLI-an oraingoz bi horiek ez daude integratuta.
+Hiru detektoreek **testu arruntan** (markdown syntaxia kenduta) egiten dute lan, eta akatsen posizioak jatorrizko testura mapatzen dira (`strip_markdown`-en posizio-maparen bidez).
 
-### 1. Cap+Punct eredua
+### Markdown euskera
 
-`itzune/txukun-cap-punct-eu` — `HiTZ/cap-punct-eu` MarianMT ereduaren bertsio kuantizatua (int8 ONNX, ~77 MB). Eredu originalak 9.78 milioi euskarazko esaldirekin entrenatu zuten HiTZ Zentroak (UPV/EHU). ONNX bertsio kuantizatua Itzune-k esportatu eta HF Hub-en argitaratu du.
-
-Ereduak sarrerako testu gordina (minuskuletan, puntuaziorik gabe) hartu eta maiuskula eta puntuazio egokiak gehitzen dizkio:
-
-```
-"euskal herrian euskaraz bizi nahi dugu" → "Euskal Herrian euskaraz bizi nahi dugu."
-```
-
-### 2. Ortografia zuzentzailea
-
-`--spell` ezartzean, **lehenik ortografia zuzentzen da**, eta gero testu zuzendua cap+punct ereduari pasatzen zaio:
+Testuak markdown sintaxia badu (`#`, `**`, `[]`, etab.), automatikoki garbitzen da ereduei pasatu aurretik. Akatsen posizioak jatorrizko markdown-era mapatzen dira:
 
 ```bash
-uv run python txukun.py --spell "gure etsea handia da"
-# Ortografia:  etsea → etxea
-# Cap+punct:   "gure etxea handia da" → "Gure etxea handia da."
+uv run python txukun.py -d "# Nire txostena
+
+laister iritsiko naiz"
+# → laister → Laster (spelling+cap-punct mergea, posizioa jatorrizko markdown-en)
 ```
 
-Fluxu honek ereduak sarrera garbiagoa jasotzea ahalbidetzen du, aluzinazio-arriskua murriztuz (ortografia-akatsak dituzten hitzek maiz aluzinazioak eragiten baitituzte).
+### Akatsen mergea
 
-Zuzentzaileak **[Hunspell](https://hunspell.github.io/)** erabiltzen du — estandar irekia mundu osoko hizkuntzetarako — **[Xuxen](https://xuxen.eus/)** euskal hiztegiarekin. Xuxen Elhuyar-ek eta UPV/EHUko IXA taldeak garatzen dute.
+Akats bat posizio berean hainbat detektorek aurkitzen badute, mergeatu egiten dira:
+- **Ortografia + Cap-punct**: `laister` → `Laster` (spell: `laster` + cap: `Laister`)
+- **Gramatika + Cap-punct**: `ama` → `Amak` (grammar: `amak` + cap: `Ama`)
 
-Hiztegi-fitxategiak (`data/eu.aff` + `data/eu.dic`, 142k sarrera + eratorpen-arauak) paketean bertan datoz. Hunspell `-a` (ispell pipe modua) bidez persistente exekutatzen da backend prozesu gisa, hitz bakoitzeko ~0.1ms latentzia lortuz.
+### Heading puntuazioa
 
-Hiztegiaren afixu-arauen bidez euskal morfologia aberatsa kudeatzen du, hitz guztiak banan-banan zerrendatu beharrik gabe:
-
-- **Deklinabideak**: `etxe`, `etxea`, `etxearekin`, `etxeetara`, `etxeetan`... (erro batetik milaka forma)
-- **Aditz-formak**: `zetozen`, `genbiltzan`, `dizkizuegu`...
-- **Hitz-elkarketak**: `hitz-armak`, `etxe-aurrean`, `sare-arloa`...
-
-**Ez da AI edo LLM**: Hunspell arau linguistikoetan oinarritutako motor determinista bat da. Ez du machine learning-ik, entrenamendurik edo eredu estatistikorik erabiltzen — hiztegi bat (142k hitz) eta euskal morfologia deskribatzen duten afixu-arauak (`data/eu.aff`) baino ez. Akats bat aurkitzean, Hunspell-en iradokizun-motorrak editatzeko distantzia erabiltzen du antzeko hitz zuzenak aurkitzeko, eta lehen iradokizuna automatikoki aplikatzen da.
+Izenburuetan (`#`), puntuazio-iradokizunak ezabatzen dira (ez da puntua gehitzen izenburuaren bukaeran).
 
 ---
 
-## ⚠️ Mugak eta Oharrak
+## ⚠️ Mugak
 
-### 🔴 Aluzinazioak
+### Aluzinazioak
 
-[`HiTZ/cap-punct-eu`](https://huggingface.co/HiTZ/cap-punct-eu) ereduak **aluzinazioak** sor ditzake — existitzen ez diren hitzak asmatzea — bereziki testu labur, arraro edo ohiz kanpokoa denean. AI eredu sortzaile guztien berezko arazoa da. ONNX int8 kuantizazioak aluzinazio horien forma alda dezake (beste txorakeria batzuk) baina ez du jatorrizko arazoa konpontzen.
+Cap-punct (MarianMT) eta GECToR ereduek aluzinazioak sor ditzakete. `constrain_lcs()` funtzioak (LCS lerrokatzea) cap-punct-en hitz-ordezkapenak arbuiatzen ditu — maiuskula/puntuazio aldaketak bakarrik onartzen ditu.
 
-Emaitza onenak lortzeko, esaldi oso eta ongi eratuak erabili.
+### Eremua
 
-### 🟡 Ortografia zuzentzailea: Hunspell + Xuxen
+Euskarazko testuetarako diseinatuta. Ez du beste hizkuntzekin funtzionatuko.
 
-Txukun-en ortografia zuzentzaileak **[Hunspell](https://hunspell.github.io/)** erabiltzen du — ortografia zuzentzaileen estandar irekia — **[Xuxen](https://xuxen.eus/)** euskal hiztegiarekin. Xuxen Elhuyar-ek eta UPV/EHUko IXA taldeak garatzen dute.
+### Errealword-ak (real-word errors)
 
-Hiztegi afixu-arauen bidez euskal morfologia aberatsa kudeatzen du:
-- Deklinabide guztiak: `etxea`, `etxearekin`, `etxeetara`...
-- Hitz-elkarketak: `hitz-armak`, `etxe-aurrean`...
-- Aditz-formak: `zetozen`, `genbiltzan`...
-
-**Ez da AI edo LLM**: Hunspell arau linguistikoetan eta hiztegi batean oinarritutako motor determinista da. Ez du machine learning-ik, entrenamendurik edo eredu estatistikorik erabiltzen.
-
-### 🟦 Eremua
-
-Txukun **euskarazko testuetarako** (`eu`/`eus`) diseinatuta dago. Ez du beste hizkuntzekin behar bezala funtzionatuko.
-
-### 📦 ONNX int8 vs PyTorch jatorrizkoa
-
-ONNX int8 bertsio kuantizatuaren eta PyTorch jatorrizkoaren arteko irteerak ezberdinak dira. Ebaluazio formalik EZ da egin, baina gure probetan esaldi ongi eratuekin ONNX bertsioak emaitza hobeak ematen dituela dirudi (adib. `"Euskal Herrian euskaraz bizi nahi dugu."` vs PyTorch-en `"EHE bizi nahi dugu."`).
+GECToR-eusek ezin ditu hitz errealen akatsak detektatu (adib. `hura` vs `ura`), Elhuyar entrenamendu-datuetan ez baitaude akats mota hori. Ikusi [gector-eus/TODO.md](https://github.com/itzune/gector-eus/blob/main/TODO.md).
 
 ---
 
 ## 🛡️ Akats-kudeaketa eta fallback-a
 
-Txukun-CLI **modu graceful batean degradatzen da** — osagairen batek huts egiten badu, aurreko mailara itzultzen da kraskatu beharrean:
+Eredu bakoitza **lazy-loading** da eta hutsegiteetan **graceful degradation** aplikatzen da:
 
-| Osagaia | Hutsegite-modua | Fallback portaera |
+| Osagaia | Hutsegitea | Fallback |
 |---|---|---|
-| **Hunspell ez instalatuta** | `hunspell` komandoa ez da aurkitzen | `_broken` bandera ezartzen da. `correct()`-ek `True` itzultzen du (hitza zuzena dela onartzen du), `suggest()`-ek `[]` itzultzen du, `auto_correct()`-ek testua aldatu gabe itzultzen du. Abisu bat erakusten da behin bakarrik. Cap+punct zuzenketa normal funtzionatzen jarraitzen du. |
-| **Hunspell pipe-a apurtuta** | `BrokenPipeError` edo `OSError` exekuzioan | Hutsegitea atzeman eta no-op gisa jolasten da: hitza zuzentzat jotzen da, iradokizunik gabe. |
-| **Cap+punct eredua kargatzean** | Deskargak edo kargak huts egiten badu | `--no-punct` erabiliaz, eredua inoiz ez da kargatzen. Bestela, errorea igarotzen da eta erabiltzaileari jakinarazten zaio. |
-| **Sarrera hutsa** | Testurik ez (`TEXT`, `--file`, `--stdin` gabe) | Errore-mezua stderr-era eta irteera-kodea ≠ 0. |
-
-Emaitza nettoa: **Hunspell ez badago, testuak cap+punct zuzenketa soilik jasotzen du** — inoiz ez hutsik, inoiz ez kraskatuta.
+| Hunspell ez instalatuta | `hunspell` komandoa ez da aurkitzen | Ortografia desgaituta, cap-punct + gramatika jarraitzen dute |
+| BERTeus kargatzeak huts | ONNX/deskarga errorea | Tier 1 (freq+ed) bakarrik erabiltzen da |
+| GECToR kargatzeak huts | ONNX/deskarga errorea | Gramatika desgaituta, besteak jarraitzen dute |
+| Cap-punct kargatzeak huts | ONNX/deskarga errorea | Cap-punct desgaituta, besteak jarraitzen dute |
 
 ---
 
 ## Lizentzia
 
 - **Kodea**: Apache 2.0
-- **Eredu kuantizatua**: Apache 2.0 (`itzune/txukun-cap-punct-eu`)
-- **Jatorrizko eredua**: Apache 2.0 (`HiTZ/cap-punct-eu`)
+- **cap-punct eredua**: Apache 2.0 (`itzune/txukun-cap-punct-eu`, jatorrizkoa `HiTZ/cap-punct-eu`)
+- **BERTeus eredua**: CC-BY-NC-SA 4.0 (`itzune/berteus-onnx`, jatorrizkoa `ixa-ehu/berteus-base-cased`)
+- **GECToR eredua**: CC-BY-NC-SA 4.0 (`itzune/gector-eus-onnx`, Elhuyar GEC datuekin entrenatua)
 - **Hiztegia**: [Xuxen](https://github.com/itzune/dictionary-eu) (GPL)
 
 ---
 
 ## 🔗 Erlazionatutako proiektuak
 
-- **[txukun](https://github.com/itzune/txukun)** — Web bertsioa (3 eredu: cap-punct + BERTeus + GECToR)
-- **[gector-eus](https://github.com/itzune/gector-eus)** — GECToR Basque entrenamendua (RoBERTa-eus-base + Elhuyar GEC, CC-BY-NC-SA)
-- [itzune/berteus-onnx](https://huggingface.co/itzune/berteus-onnx) — BERTeus int4 ONNX (ortografia berriro-ordenaketa)
-- [itzune/gector-eus-onnx](https://huggingface.co/itzune/gector-eus-onnx) — GECToR int4 ONNX (gramatika + detekzioa)
-- [Parakeet-eu](https://github.com/itzune/parakeet-eu) — Euskarazko ASR (ahoz-testura)
-- [HiTZ/cap-punct-eu](https://huggingface.co/HiTZ/cap-punct-eu) — Cap-punct eredu jatorrizkoa
+- **[txukun](https://github.com/itzune/txukun)** — Web bertsioa (3 eredu, Grammarly-style UI)
+- **[gector-eus](https://github.com/itzune/gector-eus)** — GECToR Basque entrenamendua
+- [itzune/berteus-onnx](https://huggingface.co/itzune/berteus-onnx) — BERTeus int4 ONNX
+- [itzune/gector-eus-onnx](https://huggingface.co/itzune/gector-eus-onnx) — GECToR int4 ONNX
+- [itzune/txukun-cap-punct-eu](https://huggingface.co/itzune/txukun-cap-punct-eu) — Cap-punct int8 ONNX
+- [Parakeet-eu](https://github.com/itzune/parakeet-eu) — Euskarazko ASR

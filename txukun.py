@@ -1,24 +1,30 @@
 #!/usr/bin/env python3
 """
-Txukun CLI — Basque text capitalization, punctuation restoration, and spell checking.
+Txukun CLI — Basque text correction (3 models).
 
-Uses HiTZ/cap-punct-eu (MarianMT) via ONNX Runtime (int8 quantized) for cap+punct,
-and Hunspell with Xuxen Basque dictionary for optional spell checking.
+Uses the same detection and correction pipeline as the txukun web app:
+  1. Cap-punct (MarianMT ONNX) — capitalization & punctuation
+  2. Spelling (Hunspell + Tier1 freq + BERTeus ONNX re-ranking)
+  3. Grammar (GECToR ONNX) — grammatical error correction
 
 Usage:
+    # Correct mode (default): outputs corrected text
     uv run python txukun.py "zer moduz zaude"
-    uv run python txukun.py --spell "gure etsea handia da"
-    cat input.txt | uv run python txukun.py --stdin
-    uv run python txukun.py --file euskaraz.txt --output zuzendua.txt
-"""
+    uv run python txukun.py -c "zer moduz zaude"
 
-import re
+    # Detect mode: outputs JSON with all errors
+    uv run python txukun.py -d "zer moduz zaude"
+
+    # Enable/disable specific models
+    uv run python txukun.py --disable grammar "text"
+    uv run python txukun.py --enable spell --enable cappunct "text"
+
+    # Other I/O options
+    uv run python txukun.py --file input.txt --output output.txt
+    cat raw.txt | uv run python txukun.py --stdin
+"""
 import sys
 import time
-import io
-import subprocess
-from contextlib import redirect_stdout, nullcontext
-from pathlib import Path
 
 try:
     import click
@@ -26,382 +32,115 @@ except ImportError:
     print("Error: click not installed. Run: uv sync", file=sys.stderr)
     sys.exit(1)
 
+from txukun_lib.cappunct import CapPunctModel
+from txukun_lib.spelling import SpellChecker
+from txukun_lib.bert import BerteusReranker
+from txukun_lib.grammar import GectorModel
+from txukun_lib.analyze import analyze_text
+from txukun_lib.errors import errors_to_json, apply_corrections
+from txukun_lib.markdown import strip_markdown
 
-# ── Constants ──────────────────────────────────────────────
+# ── Singleton models ────────────────────────────────
 
-MODEL_ID = "itzune/txukun-cap-punct-eu"
-
-DICT_PATH = Path(__file__).parent / "data" / "eu"  # eu.aff + eu.dic
-
-# MarianMT special tokens to clean
-CLEANUP_RE = re.compile(r"</?s>|</?pad>|<unk>")
-
-# Basque word tokenizer (matches the browser version)
-# Order matters: URLs and emails must be checked before word chars
-WORD_RE = re.compile(
-    r"https?://\S+"
-    r"|[\w.-]+@[\w.-]+"
-    r"|[a-zA-ZáéíóúüñÁÉÍÓÚÜÑàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛçÇ'\-]+"
-    r"|\d+(?:[.,]\d+)*"
-)
+_cappunct: CapPunctModel | None = None
+_spell: SpellChecker | None = None
+_bert: BerteusReranker | None = None
+_grammar: GectorModel | None = None
 
 
-# ── Spell Checker (Hunspell via subprocess) ─────────────────
+def get_models(enabled: set[str], quiet: bool = False):
+    """Get or create model instances for the enabled models."""
+    global _cappunct, _spell, _bert, _grammar
 
-class SpellChecker:
-    """Spell checker backed by Hunspell with Xuxen Basque dictionary.
+    if "cap-punct" in enabled and _cappunct is None:
+        _cappunct = CapPunctModel(quiet=quiet)
+    if "grammar" in enabled and _grammar is None:
+        _grammar = GectorModel(quiet=quiet)
+    if "spell" in enabled:
+        if _bert is None:
+            _bert = BerteusReranker(quiet=quiet)
+        if _spell is None:
+            _spell = SpellChecker(bert=_bert, quiet=quiet)
 
-    Uses 'hunspell -a -d dict_path' in persistent pipe mode (ispell format).
-    The subprocess stays alive between calls for low-latency checking.
-    """
-
-    def __init__(self, dict_path: Path):
-        self._dict = str(dict_path)
-        self._proc: subprocess.Popen | None = None
-        self._broken = False
-
-    def _ensure_proc(self):
-        """Lazily start the hunspell subprocess."""
-        if self._proc is not None and self._proc.poll() is not None:
-            self._close()
-        if self._proc is None and not self._broken:
-            try:
-                self._proc = subprocess.Popen(
-                    ["hunspell", "-a", "-d", self._dict],
-                    stdin=subprocess.PIPE,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.DEVNULL,
-                    text=True,
-                )
-                # Consume the initial header line
-                self._proc.stdout.readline()
-            except (FileNotFoundError, OSError):
-                self._broken = True
-                self._proc = None
-
-    def _close(self):
-        if self._proc and self._proc.poll() is None:
-            try:
-                self._proc.stdin.write("#\n")
-                self._proc.stdin.flush()
-                self._proc.stdin.close()
-            except OSError:
-                pass
-            try:
-                self._proc.wait(timeout=2)
-            except subprocess.TimeoutExpired:
-                self._proc.kill()
-        self._proc = None
-
-    @property
-    def loaded(self) -> bool:
-        if self._broken:
-            return False
-        self._ensure_proc()
-        return self._proc is not None and self._proc.poll() is None
-
-    def correct(self, word: str) -> bool:
-        """Check if a single word is spelled correctly."""
-        if not self.loaded:
-            return True  # if hunspell is unavailable, assume correct
-        # Numbers, URLs, emails are not dictionary words — skip them
-        if word.isdigit() or "@" in word or word.startswith("http"):
-            return True
-        self._ensure_proc()
-        try:
-            self._proc.stdin.write(word + "\n")
-            self._proc.stdin.flush()
-            line = self._proc.stdout.readline().strip()
-            # Skip blank lines (ispell uses them as terminator after some responses)
-            # A truly blank response means the word is not recognized (like numbers)
-            if not line:
-                # Try once more in case it's a blank response terminator
-                line = self._proc.stdout.readline().strip()
-                if not line:
-                    # No meaningful response — assume correct (numbers, etc.)
-                    return True
-            # ispell format:
-            #   "*"       → correct
-            #   "+"       → correct (root form shown)
-            #   "& word ..." → misspelled
-            #   "# word"  → no suggestions
-            if line.startswith("*") or line.startswith("+"):
-                return True
-            return False
-        except (BrokenPipeError, OSError):
-            self._close()
-            return True
-
-    def suggest(self, word: str) -> list[str]:
-        """Get spelling suggestions for a word."""
-        if not self.loaded:
-            return []
-        # Numbers, URLs, emails don't have spell suggestions
-        if word.isdigit() or "@" in word or word.startswith("http"):
-            return []
-        self._ensure_proc()
-        try:
-            self._proc.stdin.write(word + "\n")
-            self._proc.stdin.flush()
-            line = self._proc.stdout.readline().strip()
-            # Skip blank lines (ispell terminator)
-            if not line:
-                line = self._proc.stdout.readline().strip()
-                if not line:
-                    return []
-
-            if line.startswith("&") or line.startswith("#"):
-                # Format: "& word count offset: sug1, sug2, ..."
-                #          "# word offset" (no suggestions)
-                if ":" in line:
-                    suggestions_part = line.split(":", 1)[1].strip()
-                    return [s.strip() for s in suggestions_part.split(", ") if s.strip()]
-            return []
-        except (BrokenPipeError, OSError):
-            self._close()
-            return []
-
-    def correct_text(self, text: str) -> tuple[str, int]:
-        """Check all words in text, replace misspelled ones with first suggestion."""
-        if not self.loaded:
-            return text, 0
-
-        changes = 0
-        tokens = list(WORD_RE.finditer(text))
-        result_chars = list(text)
-
-        for i, match in enumerate(tokens):
-            word = match.group(0)
-            start, end = match.start(), match.end()
-
-            # Skip numbers, URLs, emails, short words, all-caps
-            if word.isdigit():
-                continue
-            if "@" in word or word.startswith("http"):
-                continue
-            if len(word) < 2:
-                continue
-            if word == word.upper() and len(word) > 1:
-                continue
-
-            # Skip short suffixes attached to numbers (42koa, 15ekoa, 42ko)
-            if len(word) <= 5 and i > 0 and tokens[i - 1].group(0).isdigit():
-                continue
-
-            # Check via hunspell
-            if self.correct(word):
-                continue
-
-            suggestions = self.suggest(word)
-            # Filter: skip ALL-CAPS suggestions (e.g., "SER" for "ser")
-            suggestions = [s for s in suggestions if not s.isupper()]
-            # For title-case input, prefer suggestions that start with same capital
-            if word[0].isupper() and word[1:].islower():
-                title_suggestions = [s for s in suggestions if s[:1].isupper()]
-                if title_suggestions:
-                    suggestions = title_suggestions
-            if suggestions:
-                changes += 1
-                replacement = suggestions[0]
-                # Preserve original casing pattern if word was title-case
-                if word[0].isupper() and word[1:].islower():
-                    replacement = replacement[0].upper() + replacement[1:]
-                result_chars[start:end] = list(replacement)
-
-        return "".join(result_chars), changes
-
-    def __del__(self):
-        self._close()
+    return _cappunct, _spell, _grammar
 
 
-# ── Model (ONNX Runtime via optimum) ────────────────────────
+# ── CLI ─────────────────────────────────────────────
 
-class TxukunModel:
-    """Lazy-loads the cap-punct-eu MarianMT model via ONNX Runtime (int8 quantized)."""
-
-    def __init__(self, quiet: bool = False):
-        self._pipeline = None
-        self._quiet = quiet
-
-    def _load(self):
-        if self._pipeline is not None:
-            return
-
-        from optimum.onnxruntime import ORTModelForSeq2SeqLM
-        from transformers import AutoTokenizer
-
-        if not self._quiet:
-            click.echo("⏳ Deskargatzen cap-punct-eu ONNX int8 modeloa...", err=True)
-
-        # Load ONNX model via optimum
-        # Our decoder_model_merged_quantized.onnx IS a with-past decoder
-        with redirect_stdout(io.StringIO()) if self._quiet else nullcontext():
-            model = ORTModelForSeq2SeqLM.from_pretrained(
-                MODEL_ID,
-                encoder_file_name="encoder_model_quantized.onnx",
-                decoder_file_name="decoder_model_merged_quantized.onnx",
-                decoder_with_past_file_name="decoder_model_merged_quantized.onnx",
-                provider="CPUExecutionProvider",
-                use_cache=True,
-            )
-
-        # Tokenizer: load from HiTZ/cap-punct-eu (has source.spm + vocab.json)
-        if not self._quiet:
-            click.echo("  ▸ Tokenizadorea kargatzen...", err=True)
-        import warnings
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            tokenizer = AutoTokenizer.from_pretrained("HiTZ/cap-punct-eu")
-
-        from transformers import pipeline
-
-        if self._quiet:
-            from transformers.utils import logging as hf_logging
-            hf_logging.set_verbosity_error()
-
-        if not self._quiet:
-            click.echo("🚀 Pipeline kargatzen...", err=True)
-
-        with redirect_stdout(io.StringIO()) if self._quiet else nullcontext():
-            self._pipeline = pipeline(
-                "translation",
-                model=model,
-                tokenizer=tokenizer,
-                max_length=512,
-            )
-
-        if not self._quiet:
-            click.echo("✅ Eredua kargatuta (ONNX int8, ~77 MB).", err=True)
-
-    def correct(self, text: str) -> str:
-        self._load()
-        result = self._pipeline(text)
-        output = result[0]["translation_text"]
-        output = clean_output(output)
-        if not output.strip():
-            output = text
-        return output
-
-
-def clean_output(text: str) -> str:
-    """Clean model output: remove special tokens, collapse whitespace."""
-    text = CLEANUP_RE.sub("", text)
-    text = re.sub(r"\s{2,}", " ", text).strip()
-    return text
-
-
-# ── CLI ─────────────────────────────────────────────────────
-
-MODEL_INSTANCE = None
-SPELL_INSTANCE = None
-
-
-def get_model(quiet=False):
-    global MODEL_INSTANCE
-    if MODEL_INSTANCE is None:
-        MODEL_INSTANCE = TxukunModel(quiet=quiet)
-    return MODEL_INSTANCE
-
-
-def get_spell():
-    global SPELL_INSTANCE
-    if SPELL_INSTANCE is None:
-        SPELL_INSTANCE = SpellChecker(DICT_PATH)
-    return SPELL_INSTANCE
+ALL_MODELS = ["cap-punct", "spell", "grammar"]
 
 
 @click.command()
 @click.argument("text", required=False, default=None)
+@click.option("-d", "--detect", is_flag=True, help="Output JSON with detected errors")
+@click.option("-c", "--correct", is_flag=True, help="Output corrected text (default)")
 @click.option(
-    "--file", "-f",
-    type=click.Path(exists=True),
-    help="Read input from a file instead of argument",
+    "--enable", multiple=True, type=click.Choice(ALL_MODELS),
+    help="Enable specific models (if given, ONLY these are enabled)",
 )
 @click.option(
-    "--stdin",
-    is_flag=True,
-    help="Read input from stdin",
+    "--disable", multiple=True, type=click.Choice(ALL_MODELS),
+    help="Disable specific models",
 )
-@click.option(
-    "--output", "-o",
-    type=click.Path(),
-    help="Write output to a file (otherwise prints to stdout)",
-)
-@click.option(
-    "--spell",
-    is_flag=True,
-    default=False,
-    help="Enable spell checking (default: disabled)",
-)
-@click.option(
-    "--no-punct/--punct",
-    default=False,
-    help="Disable cap+punct correction (default: --punct, enabled)",
-)
-@click.option(
-    "--quiet", "-q",
-    is_flag=True,
-    help="Suppress status messages — output only",
-)
-def main(text, file, stdin, output, spell, no_punct, quiet):
-    """
-    Txukun CLI — Basque text capitalization, punctuation, and spell checker.
-
-    Cap+punct uses the int8-quantized ONNX model (itzune/txukun-cap-punct-eu,
-    ~77 MB). Spell checking uses Hunspell with the Xuxen Basque dictionary
-    (data/eu.aff + data/eu.dic).
+@click.option("--file", "-f", type=click.Path(exists=True), help="Read input from a file")
+@click.option("--stdin", "use_stdin", is_flag=True, help="Read input from stdin")
+@click.option("--output", "-o", type=click.Path(), help="Write output to a file")
+@click.option("--quiet", "-q", is_flag=True, help="Suppress status messages")
+def main(text, detect, correct, enable, disable, file, use_stdin, output, quiet):
+    """Txukun CLI — Basque text correction (cap-punct + spelling + grammar).
 
     \b
     Examples:
       uv run python txukun.py "zer moduz zaude"
-      uv run python txukun.py --spell "gure etsea handia da"
-      uv run python txukun.py --file input.txt --output output.txt
+      uv run python txukun.py -d "zer moduz zaude"
+      uv run python txukun.py --disable grammar "text"
+      uv run python txukun.py -f input.txt -o output.txt
       cat raw.txt | uv run python txukun.py --stdin
     """
-    if stdin:
+    # ── Read input ──
+    if use_stdin:
         text = sys.stdin.read().strip()
     elif file:
         with open(file) as f:
             text = f.read().strip()
     elif text is None:
-        click.echo("Error: no input provided. Use TEXT, --file, or --stdin.", err=True)
+        click.echo("Error: no input. Use TEXT, --file, or --stdin.", err=True)
         sys.exit(1)
 
     if not text:
         click.echo("Error: empty input.", err=True)
         sys.exit(1)
 
-    result = text
+    # ── Determine enabled models ──
+    if enable:
+        enabled = set(enable) - set(disable)
+    else:
+        enabled = set(ALL_MODELS) - set(disable)
 
-    # Step 0: Spell-correct input before feeding to model (--spell flag)
-    if spell:
-        if not quiet:
-            click.echo("🔍 Ortografia zuzentzen (sarrera)...", err=True)
-        spell_checker = get_spell()
-        if spell_checker.loaded:
-            t0 = time.time()
-            result, spell_changes = spell_checker.correct_text(result)
-            if not quiet:
-                if spell_changes > 0:
-                    click.echo(f"  ✓ {spell_changes} hitz zuzenduta ({time.time() - t0:.1f}s)", err=True)
-                else:
-                    click.echo(f"  ✓ Zuzena ({time.time() - t0:.1f}s)", err=True)
-        elif not quiet:
-            click.echo("  ⚠ Hunspell ez dago eskuragarri. Instalatu: sudo apt install hunspell.", err=True)
+    if not enabled:
+        click.echo("Error: no models enabled.", err=True)
+        sys.exit(1)
 
-    # Step 1: Cap+punct correction
-    if not no_punct:
-        if not quiet:
-            click.echo("🔤 Maiuskulak eta puntuazioa zuzentzen...", err=True)
-        try:
-            t0 = time.time()
-            model = get_model(quiet=quiet)
-            result = model.correct(result)
-            if not quiet:
-                click.echo(f"  ✓ {time.time() - t0:.1f}s", err=True)
-        except Exception as e:
-            if not quiet:
-                click.echo(f"⚠️  Eredu errorea: {e}", err=True)
+    # ── Run analysis ──
+    if not quiet:
+        model_names = " + ".join(sorted(enabled))
+        click.echo(f"🔍 Analizatzen ({model_names})...", err=True)
+
+    t0 = time.time()
+    cappunct, spell, grammar = get_models(enabled, quiet=quiet)
+    errors = analyze_text(text, cappunct, spell, grammar)
+    elapsed = time.time() - t0
+
+    if not quiet:
+        click.echo(f"  ✓ {len(errors)} akats aurkituta ({elapsed:.1f}s)", err=True)
+
+    # ── Output ──
+    if detect:
+        # JSON output with all errors
+        result = errors_to_json(errors)
+    else:
+        # Corrected text
+        result = apply_corrections(text, errors)
 
     if output:
         with open(output, "w") as f:
