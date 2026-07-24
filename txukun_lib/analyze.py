@@ -18,6 +18,49 @@ from .errors import Error, next_id, reset_counter
 from .markdown import strip_markdown, map_offset, build_context
 from .diff import diff_words, is_case_punct_only, apply_case_pattern, is_in_heading
 
+# ──────────────────────────────────────────────────────────────
+# Confidence thresholds
+#
+# Per-model minimum confidence for a correction to be shown.
+# Errors below the threshold are silently suppressed.
+#
+# These values were tuned on the 220-case evaluation dataset
+# (tests/gec-benchmark/eval_dataset.json) via grid search
+# (tests/gec-benchmark/confidence_per_model.py).
+#
+# Result: 22.7% → 38.6% accuracy (+15.9% absolute), cutting
+# over-corrections from 139 → 66 and false positives from 12 → 1.
+#
+# Confidence source per model:
+#   grammar  → GECToR P(INCORRECT) from detection head (0.0–1.0)
+#   spelling → BERTeus cosine similarity, normalized to 0–1
+#   cappunct → MarianMT LCS match rate (fraction of input
+#              tokens that survived alignment; 1.0 = no word
+#              substitution, only case/punctuation changes)
+#
+# ⚠️  REVIEW THESE VALUES if models are updated or retrained.
+#     Re-run: tests/gec-benchmark/run_eval.py + confidence_per_model.py
+# ──────────────────────────────────────────────────────────────
+
+CONFIDENCE_THRESHOLDS: dict[str, float] = {
+    "grammar": 0.05,
+    "spelling": 0.50,
+    "cappunct": 1.00,
+}
+
+
+def _filter_by_confidence(errors: list[Error]) -> list[Error]:
+    """Suppress errors whose confidence is below the per-category threshold.
+
+    Errors with confidence=None are always kept (can't evaluate).
+    """
+    out = []
+    for e in errors:
+        threshold = CONFIDENCE_THRESHOLDS.get(e.category, 0.0)
+        if e.confidence is None or e.confidence >= threshold:
+            out.append(e)
+    return out
+
 
 def analyze_text(
     md_text: str,
@@ -73,6 +116,8 @@ def analyze_text(
     all_errors.sort(key=lambda e: (e.frm, -(e.to - e.frm)))
     # Remove overlaps (keep earliest, then longest)
     all_errors = _dedupe_overlaps(all_errors)
+    # Suppress low-confidence corrections (per-model thresholds)
+    all_errors = _filter_by_confidence(all_errors)
     return all_errors
 
 

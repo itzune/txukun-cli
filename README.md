@@ -178,6 +178,30 @@ Eredu bakoitza **lazy-loading** da eta hutsegiteetan **graceful degradation** ap
 
 ---
 
+## 🎯 Konfiantza-iragazkia (confidence filtering)
+
+Eredu bakoitzak konfiantza-puntuazio bat ematen du iradokizun bakoitzeko. Balio baxuko iradokizunak automatikoki ezabatzen dira, **over-correction** eta **false positive** arazoak murrizteko.
+
+| Eredua | Konfiantza-iturria | Atalasea |
+|---|---|---|
+| GECToR (gramatika) | P(INCORRECT) detekzio-burutik (0.0–1.0) | **0.05** |
+| BERTeus (ortografia) | Kosinu antzekotasuna, normalizatuta (0–1) | **0.50** |
+| MarianMT (cap-punct) | LCS lerrokatze-tasa (1.0 = hitz-ordezkapenik ez) | **1.00** |
+
+Atalase hauek 220 kasuko ebaluazio-datu-sortan kalibratu dira (`tests/gec-benchmark/eval_dataset.json`), grid search bidez (`tests/gec-benchmark/confidence_per_model.py`).
+
+**Emaitza**: 22.7% → 38.6% zehaztasuna (+15.9 puntu), over-correction 139→66 eta false positive 12→1 murriztuz.
+
+> ⚠️ **Ereduak eguneratzen badira**, atalase hauek berrikustekoak dira. Berriro exekutatu:
+> ```bash
+> uv run python tests/gec-benchmark/run_eval.py --output /tmp/eval_results.json
+> uv run python tests/gec-benchmark/confidence_per_model.py
+> ```
+
+Config-ak `txukun_lib/analyze.py`-n daude (`CONFIDENCE_THRESHOLDS` aldagaia).
+
+---
+
 ## Lizentzia
 
 - **Kodea**: Apache 2.0

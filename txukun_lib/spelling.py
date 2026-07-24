@@ -219,7 +219,8 @@ class HunspellChecker:
             return True
         self._ensure()
         try:
-            self._proc.stdin.write(word + "\n")
+            # ^ prefix escapes special chars (-, *, &, #, etc.) in -a mode
+            self._proc.stdin.write("^" + word + "\n")
             self._proc.stdin.flush()
             line = self._proc.stdout.readline().strip()
             if not line:
@@ -238,7 +239,8 @@ class HunspellChecker:
             return []
         self._ensure()
         try:
-            self._proc.stdin.write(word + "\n")
+            # ^ prefix escapes special chars (-, *, &, #, etc.) in -a mode
+            self._proc.stdin.write("^" + word + "\n")
             self._proc.stdin.flush()
             line = self._proc.stdout.readline().strip()
             if not line:
